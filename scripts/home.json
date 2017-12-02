@@ -1,0 +1,131 @@
+{
+ "settings": {
+  "number_of_shards": 1,
+  "number_of_replicas": 0
+ },
+ "mappings": {
+  "home": {
+   "properties": {
+    "address": {
+     "properties": {
+      "city": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "postalCode": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "street": {
+       "index": "not_analyzed",
+       "type": "string"
+      }
+     }
+    },
+    "cars": {
+     "type": "nested",
+     "properties": {
+      "color": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "id": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "make": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "type": {
+       "index": "not_analyzed",
+       "type": "string"
+      }
+     }
+    },
+    "cars_size": {
+     "type": "long"
+    },
+    "family": {
+     "type": "nested",
+     "properties": {
+      "age": {
+       "type": "long"
+      },
+      "gender": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "givenName": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "id": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "school": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "surname": {
+       "index": "not_analyzed",
+       "type": "string"
+      }
+     }
+    },
+    "family_size": {
+     "type": "long"
+    },
+    "fence": {
+       "index": "not_analyzed",
+     "type": "string"
+    },
+    "garage": {
+       "index": "not_analyzed",
+     "type": "string"
+    },
+    "id": {
+     "index": "not_analyzed",
+     "type": "string"
+    },
+    "name": {
+       "index": "not_analyzed",
+     "type": "string"
+    },
+    "roofTypes": {
+       "index": "not_analyzed",
+     "type": "string"
+    },
+    "rooms": {
+     "type": "nested",
+     "properties": {
+      "closet": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "counter": {
+       "index": "not_analyzed",
+       "type": "string"
+      },
+      "type": {
+       "index": "not_analyzed",
+       "type": "string"
+      }
+     }
+    },
+    "rooms_size": {
+     "type": "long"
+    },
+    "siding": {
+       "index": "not_analyzed",
+     "type": "string"
+    },
+    "type": {
+       "index": "not_analyzed",
+     "type": "string"
+    }
+   }
+  }
+ }
+}

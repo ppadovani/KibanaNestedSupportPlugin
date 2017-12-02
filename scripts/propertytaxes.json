@@ -1,0 +1,37 @@
+{
+ "settings": {
+  "number_of_shards": 1,
+  "number_of_replicas": 0
+ },
+ "mappings": {
+  "record": {
+   "properties": {
+    "address": {
+     "properties": {
+      "city": {
+       "type": "string"
+      },
+      "street": {
+       "type": "string"
+      },
+      "postalCode": {
+       "type": "string"
+      }
+     }
+    },
+    "appraisedValue": {
+     "type": "long"
+    },
+    "year": {
+     "type": "long"
+    },
+    "id": {
+     "type": "string"
+    },
+    "propertyId": {
+     "type": "string"
+    }
+   }
+  }
+ }
+}
