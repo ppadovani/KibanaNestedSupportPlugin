@@ -1,6 +1,7 @@
 # nested-fields-support
 
-> An awesome Kibana plugin
+> This plugin adds support for nested fields to Kibana. This is a work in progress, and is based off of the 
+work from my fork of [Kibana](https://github.com/homeaway/kibana).
 
 ---
 
@@ -29,3 +30,4 @@ See the [kibana contributing guide](https://github.com/elastic/kibana/blob/maste
     Run the server tests using mocha
 
 For more information about any of these commands run `npm run ${task} -- --help`.
+
