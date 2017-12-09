@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 
 import json
 import uuid
@@ -88,11 +88,11 @@ class House:
 		age = random.randint(35, 65)
 		self.family.append(Person(surname, age))
 		count = random.randint(0, 6)
-		for i in xrange(count):
+		for i in range(count):
 			self.family.append(Person(surname, random.randint(1, 22)))
 		self.family_size = len(self.family)
 		count = random.randint(1, 3)
-		for i in xrange(count):
+		for i in range(count):
 			self.cars.append(Car())
 		self.cars_size = len(self.cars)
 		self.rooms = []
@@ -101,17 +101,17 @@ class House:
 		self.rooms.append(Room('family'))
 		self.rooms.append(Room('bathroom'))
 		count = random.randint(1, 3)
-		for i in xrange(count):
+		for i in range(count):
 			self.rooms.append(Room('bedroom'))
 		count = random.randint(0, 2)
-		for i in xrange(count):
+		for i in range(count):
 			self.rooms.append(Room('bathroom'))
 		count = random.randint(0, 2)
-		for i in xrange(count):
+		for i in range(count):
 			self.rooms.append(Room(random.sample(roomTypes, 1)[0]))	
 		self.rooms_size = len(self.rooms)	
 		minValue = random.randint(100000, 400000)
-		for i in xrange(2000, 2016):
+		for i in range(2000, 2016):
 			tax = PropertyTax(i, minValue, self.address, self.id)
 			minValue = tax.appraisedValue
 			proptaxes.append(tax)
@@ -139,43 +139,43 @@ class Person:
 		if age >= 19 and age < 22:
 			self.school = random.sample(colleges,1)[0].id
 
-print "Generating schools"
-for i in xrange(20):
+print("Generating schools")
+for i in range(20):
 	elemschools.append(School("Elementary"))
 
-for i in xrange(10):
+for i in range(10):
 	midschools.append(School("Middle School"))
 
-for i in xrange(3):
+for i in range(3):
 	highschools.append(School("High School"))
 
-for i in xrange(3):
+for i in range(3):
 	colleges.append(School("College"))
 
-print "Generating homes"
-for i in xrange(numHomes):
+print("Generating homes")
+for i in range(numHomes):
 	homes.append(House())
 
 url = 'http://' + esHostname
 
-print "Creating mappings in elasticsearch"
+# print("Creating mappings in elasticsearch")
 # create the mappings in elastic
-contents = open('home.json', 'rb').read()
-requests.post(url + '/homes', data=contents)
-contents = open('school.json', 'rb').read()
-requests.post(url + '/schools', data=contents)
-contents = open('propertytaxes.json', 'rb').read()
-requests.post(url + '/propertytaxes', data=contents)
+# contents = open('home.json', 'rb').read()
+# requests.post(url + '/homes', data=contents)
+# contents = open('school.json', 'rb').read()
+# requests.post(url + '/schools', data=contents)
+# contents = open('propertytaxes.json', 'rb').read()
+# requests.post(url + '/propertytaxes', data=contents)
 
-print "Indexing homes"
+print("Indexing homes")
 for i in homes:
 	requests.post(url + '/homes/home', json.dumps(i, default=lambda o: o.__dict__))
 
-print "Indexing property taxes"
+print("Indexing property taxes")
 for i in proptaxes:
 	requests.post(url + '/propertytaxes/record', json.dumps(i, default=lambda o: o.__dict__))
 	
-print "Indexing schools"
+print("Indexing schools")
 for i in elemschools:
 	requests.post(url + '/schools/school', json.dumps(i, default=lambda o: o.__dict__))
 
