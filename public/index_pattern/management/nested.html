@@ -1,0 +1,57 @@
+<kbn-management-app section="kibana">
+    <div class="kbn-management-reporting container-fluid">
+        <h1>Index Pattern Nested Configuration</h1>
+
+        <p>This page will all you to activate nested field support on an index pattern by index pattern basis. When an
+            index pattern is turned on, the fields will be reloaded from the elasticsearch cluster and analyzed for
+            nested fields. This updated information will then be saved in the Kibana index.</p>
+
+        <p><strong>NOTE: By activating nested support on an index the query language used to query that index is changed
+            to
+            the nested support query language.</strong></p>
+
+        <div>
+            <table class="table table-striped job-list" ng-class="">
+                <thead>
+                <tr>
+                    <th>Index Pattern</th>
+                    <th>Nested Enabled</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-if="indexPatternList.length"
+                    ng-repeat="idx in indexPatternList | orderBy:['-default','title'] track by idx.id">
+                    <td>
+                        <div>{{ idx.title }}</div>
+                    </td>
+                    <td>
+                        <div ng-if="idx.nested !== undefined && idx.nested == true"><i class="fa fa-check" aria-label="yes"></i></div>
+                    </td>
+                    <td class="actions">
+                        <button
+                                class="kuiButton kuiButton--danger"
+                                ng-if="idx.nested === undefined || idx.nested == false"
+                                ng-click=activateIndex(idx)
+                                aria-label="Activate"
+                                ng-attr-tooltip="Enable nested field support"
+                        >
+                            <span class="kuiIcon fa-square-o"></span>
+                        </button>
+
+                        <button
+                                ng-if="idx.nested !== undefined && idx.nested == true"
+                                class="kuiButton kuiButton--basic"
+                                aria-label="Disable"
+                                ng-click=deactivateIndex(idx)
+                                ng-attr-tooltip="Disable nested field support"
+                        >
+                            <span class="kuiIcon fa-check-square-o"></span>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</kbn-management-app>

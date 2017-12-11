@@ -4,7 +4,7 @@
   "number_of_replicas": 0
  },
  "mappings": {
-  "home": {
+  "homes": {
    "properties": {
     "address": {
      "properties": {
