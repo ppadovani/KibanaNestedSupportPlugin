@@ -48,16 +48,16 @@ export function fromUser(text, model) {
     }
   } else {
     if (ngModel.$parent.indexPattern.nested) {
-      // try {
+      try {
         if (ngModel.filter) {
           ngModel.filter.base_query = text;
         }
         let parsed = parser.parse(text).toJson();
         return JSON.parse(parsed);
-      // } catch (e) {
-      //   ngModel.parseError = e.message;
-      //   return undefined;
-      // }
+      } catch (e) {
+        ngModel.parseError = e.message;
+        return undefined;
+      }
     }
     return getQueryStringQuery(text);
   }
