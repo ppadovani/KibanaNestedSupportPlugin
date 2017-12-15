@@ -3,6 +3,8 @@
 > This plugin adds support for nested fields to Kibana. This is a work in progress, and is based off of the 
 work from my fork of [Kibana](https://github.com/homeaway/kibana).
 
+See this issue for updates/screenshots: [Status updates and Screenshots](https://github.com/ppadovani/KibanaNestedSupportPlugin/issues/8)
+
 ---
 
 ## development
