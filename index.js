@@ -25,6 +25,7 @@ export default function (kibana) {
         'plugins/nested-fields-support/hacks/index_pattern/index_pattern',
         'plugins/nested-fields-support/hacks/index_pattern/field',
         'plugins/nested-fields-support/hacks/discover/no_results',
+        'plugins/nested-fields-support/hacks/discover/typeahead-items',
         'plugins/nested-fields-support/hacks/parse_query/parse_query'
         // 'plugins/nested-fields-support/index_pattern/management/edit_sections'
       ]
