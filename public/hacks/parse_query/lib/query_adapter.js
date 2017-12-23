@@ -1,3 +1,4 @@
+
 let scope;
 
 if (typeof require !== 'undefined') {
@@ -10,11 +11,34 @@ scope.moment = require('moment');
 scope.errors = require('ui/errors');
 scope._ = require('lodash');
 
+/**
+ * when a field mapping is requested for an unknown field
+ * @param {String} name - the field name
+ */
+export class FieldNotFoundInSelectedIndex extends scope.errors.KbnError {
+  constructor(name) {
+    super('The ' + name + ' field was not found in the currently selected index',
+      FieldNotFoundInSelectedIndex);
+  }
+}
+
+/**
+ * when a field mapping is requested for an unknown field
+ * @param {String} name - the field name
+ */
+export class InvalidValueForField extends scope.errors.KbnError {
+  constructor(name, type, value) {
+    super('The ' + name + ' field expects a ' + type + ' but got ' + value,
+      InvalidValueForField);
+  }
+}
+
+
 function getMapping(fieldName) {
   if (scope.fieldDictionary) {
     let mapping = scope.fieldDictionary.byName[fieldName];
     if (mapping === undefined) {
-      throw new scope.errors.FieldNotFoundInSelectedIndex(fieldName);
+      throw new FieldNotFoundInSelectedIndex(fieldName);
     }
     return mapping;
   }
@@ -27,13 +51,13 @@ function validateValue(mapping, value) {
     switch (mapping.type) {
       case 'string':
         if (!scope._.isString(value)) {
-          throw new scope.errors.InvalidValueForField(mapping.name, mapping.type, value);
+          throw new InvalidValueForField(mapping.name, mapping.type, value);
         }
         return value;
         break;
       case 'date':
         if (!value._isAMomentObject && !(value instanceof scope.DateExp)) {
-          throw new scope.errors.InvalidValueForField(mapping.name, mapping.type, value);
+          throw new InvalidValueForField(mapping.name, mapping.type, value);
         }
         if (value._isAMomentObject) {
           return value.valueOf();
@@ -45,13 +69,13 @@ function validateValue(mapping, value) {
         break;
       case 'number':
         if (!scope._.isNumber(value)) {
-          throw new scope.errors.InvalidValueForField(mapping.name, mapping.type, value);
+          throw new InvalidValueForField(mapping.name, mapping.type, value);
         }
         return value;
         break;
       case 'boolean':
         if (!scope._.isBoolean(value)) {
-          throw new scope.errors.InvalidValueForField(mapping.name, mapping.type, value);
+          throw new InvalidValueForField(mapping.name, mapping.type, value);
         }
         return value;
         break;
@@ -59,7 +83,7 @@ function validateValue(mapping, value) {
         // check that the string value is formatted as a geo point
         temp = value.split(',');
         if (parseFloat(temp[0]) === NaN || parseFloat(temp[1]) === NaN) {
-          throw new scope.errors.InvalidValueForField(mapping.name, mapping.type, value);
+          throw new InvalidValueForField(mapping.name, mapping.type, value);
         }
         return value;
         break;
