@@ -1,4 +1,4 @@
-import { createRawData } from 'agg_response/hierarchical/_create_raw_data';
+import { createRawData } from 'ui/agg_response/hierarchical/_create_raw_data';
 
 
 createRawData.walkBuckets = function (agg, data, record) {

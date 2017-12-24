@@ -1,4 +1,4 @@
-import {Tabify} from 'agg_response/tabify/tabify';
+import {Tabify} from 'ui/agg_response/tabify/tabify';
 
 Tabify.tabifyAggResponse = function (vis, esResponse, respOpts) {
   const write = new TabbedAggResponseWriter(vis, respOpts);

@@ -1,6 +1,6 @@
-import * as BuildHierarchicalData from 'agg_response/hierarchical/build_hierarchical_data';
+import * as buidlHData from 'ui/agg_response/hierarchical/build_hierarchical_data';
 
-BuildHierarchicalData = function (Private, Notifier) {
+buidlHData.BuildHierarchicalData = function (Private, Notifier) {
   const buildSplit = Private(AggResponseHierarchicalBuildSplitProvider);
   const tooltipFormatter = Private(HierarchicalTooltipFormatterProvider);
 

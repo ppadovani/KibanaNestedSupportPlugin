@@ -1,6 +1,6 @@
-import { MetricAggType } from 'agg_types/metrics/metric_agg_type';
+import { MetricAggType } from 'ui/agg_types/metrics/metric_agg_type';
 
-MetricAggType.prototype..getValue = function (agg, bucket) {
+MetricAggType.prototype.getValue = function (agg, bucket) {
   // Metric types where an empty set equals `zero`
   const isSettableToZero = ['cardinality', 'sum'].indexOf(agg.__type.name) !== -1;
 

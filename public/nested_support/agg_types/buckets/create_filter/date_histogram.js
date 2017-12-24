@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { buildRangeFilter } from 'ui/filter_manager/lib/range';
 
-import * as DatehistogramFilter from 'agg_types/buckets/create_filter/date_histogram';
+import * as DatehistogramFilter from 'ui/agg_types/buckets/create_filter/date_histogram';
 
 DatehistogramFilter.AggTypesBucketsCreateFilterDateHistogramProvider = function () {
 

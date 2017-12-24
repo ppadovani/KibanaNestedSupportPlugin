@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { AggTypesAggParamsProvider } from 'ui/agg_types/agg_params';
 import { RegistryFieldFormatsProvider } from 'ui/registry/field_formats';
-import * as aggType from 'agg_types/agg_type';
+import * as aggType from 'ui/agg_types/agg_type';
 
 aggType.AggTypesAggTypeProvider = function(Private) {
   const AggParams = Private(AggTypesAggParamsProvider);

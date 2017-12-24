@@ -1,4 +1,4 @@
-import * as transformAggregation from 'agg_response/hierarchical/_transform_aggregation';
+import * as transformAggregation from 'ui/agg_response/hierarchical/_transform_aggregation';
 
 transformAggregation.HierarchicalTransformAggregationProvider = function () {
   return function transformAggregation(agg, metric, aggData, parent) {
@@ -6,7 +6,7 @@ transformAggregation.HierarchicalTransformAggregationProvider = function () {
       const aggConfigResult = new AggConfigResult(
         agg,
         parent && parent.aggConfigResult,
-        metric.getValue(agg.id, bucket),,
+        metric.getValue(agg.id, bucket),
         agg.getKey(bucket)
       );
 

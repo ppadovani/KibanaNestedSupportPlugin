@@ -7,7 +7,7 @@ import orderAggTemplate from 'ui/agg_types/controls/order_agg.html';
 import orderAndSizeTemplate from 'ui/agg_types/controls/order_and_size.html';
 import { RouteBasedNotifierProvider } from 'ui/route_based_notifier';
 
-import * as Terms from 'agg_types/buckets/terms';
+import * as Terms from 'ui/agg_types/buckets/terms';
 
 Terms.AggTypesBucketsTermsProvider = function(Private) {
   const BucketAggType = Private(AggTypesBucketsBucketAggTypeProvider);
