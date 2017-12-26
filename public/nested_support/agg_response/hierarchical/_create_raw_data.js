@@ -33,4 +33,4 @@ createRawData.walkBuckets = function (agg, data, record) {
       results.rows.push(_record);
     }
   });
-}
+};

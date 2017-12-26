@@ -1,2 +1,2 @@
 import './agg_config';
-import './agg_confis';
+import './agg_configs';

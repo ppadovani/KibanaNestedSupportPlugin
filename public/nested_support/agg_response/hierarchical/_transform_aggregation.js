@@ -1,3 +1,5 @@
+import { extractBuckets } from 'ui/agg_response/hierarchical/_extract_buckets';
+import AggConfigResult from 'ui/vis/agg_config_result';
 import * as transformAggregation from 'ui/agg_response/hierarchical/_transform_aggregation';
 
 transformAggregation.HierarchicalTransformAggregationProvider = function () {
@@ -38,4 +40,4 @@ transformAggregation.HierarchicalTransformAggregationProvider = function () {
       return branch;
     });
   };
-}
+};

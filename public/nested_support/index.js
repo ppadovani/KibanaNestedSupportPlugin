@@ -1,3 +1,4 @@
+import './index_pattern';
 import './discover';
 import './parse_query';
 import './courier';
