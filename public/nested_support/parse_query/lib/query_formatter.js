@@ -30,6 +30,8 @@ define(function () {
       return fromMustNot(query.must_not);
     } else if (query.filtered) {
       return fromFiltered(query.filtered);
+    } else if (query.filter) {
+      return fromQuery(query.filter);
     }
 
     throw 'Unable to reverse parse';

@@ -1,5 +1,5 @@
 <div
-        ng-show="typeahead.isVisible()"
+        ng-show="typeahead.isVisible() || parseError !== undefined"
         ng-mouseenter="typeahead.setMouseover(true);"
         ng-mouseleave="typeahead.setMouseover(false);"
         class="typeahead-items"
