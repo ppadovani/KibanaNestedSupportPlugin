@@ -60,6 +60,7 @@ routes.when('/management/kibana/nested_configuration', {
           _.each(index_pattern.fields, function (field) {
             if ( hierarchyPaths[field.name] !== undefined ) {
               field.nestedPath = hierarchyPaths[field.name];
+              index_pattern.fields.byName[field.name].nestedPath = hierarchyPaths[field.name];
             }
           });
           index_pattern.nested = true;

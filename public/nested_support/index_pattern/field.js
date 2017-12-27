@@ -62,7 +62,7 @@ field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScop
     obj.fact('searchable', searchable);
     obj.fact('aggregatable', aggregatable);
     obj.fact('readFromDocValues', readFromDocValues);
-    obj.fact('nestedPath', nestedPath);
+    obj.writ('nestedPath', nestedPath);
 
     // usage flags, read-only and won't be saved
     obj.comp('format', format);
