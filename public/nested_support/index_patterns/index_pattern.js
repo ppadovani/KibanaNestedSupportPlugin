@@ -1,22 +1,24 @@
 import * as indexPattern from 'ui/index_patterns/_index_pattern';
 import _ from 'lodash';
-import { SavedObjectNotFound, DuplicateField, IndexPatternMissingIndices } from 'ui/errors';
-import { RegistryFieldFormatsProvider } from 'ui/registry/field_formats';
+import {SavedObjectNotFound, DuplicateField, IndexPatternMissingIndices} from 'ui/errors';
+import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
 import UtilsMappingSetupProvider from 'ui/utils/mapping_setup';
-import { Notifier } from 'ui/notify';
+import {Notifier} from 'ui/notify';
 
-import { getComputedFields } from 'ui/index_patterns/_get_computed_fields';
-import { formatHit } from 'ui/index_patterns/_format_hit';
-import { IndexPatternsGetProvider } from 'ui/index_patterns/_get';
-import { IndexPatternsIntervalsProvider } from 'ui/index_patterns/_intervals';
-import { IndexPatternsFieldListProvider } from 'ui/index_patterns/_field_list';
-import { IndexPatternsFlattenHitProvider } from 'ui/index_patterns/_flatten_hit';
-import { IndexPatternsCalculateIndicesProvider } from 'ui/index_patterns/_calculate_indices';
-import { IndexPatternsPatternCacheProvider } from 'ui/index_patterns/_pattern_cache';
-import { FieldsFetcherProvider } from 'ui/index_patterns/fields_fetcher_provider';
-import { SavedObjectsClientProvider, findObjectByTitle } from 'ui/saved_objects';
+import {getComputedFields} from 'ui/index_patterns/_get_computed_fields';
+import {formatHit} from 'ui/index_patterns/_format_hit';
+import {IndexPatternsGetProvider} from 'ui/index_patterns/_get';
+import {IndexPatternsIntervalsProvider} from 'ui/index_patterns/_intervals';
+import {IndexPatternsFieldListProvider} from 'ui/index_patterns/_field_list';
+import {IndexPatternsFlattenHitProvider} from 'ui/index_patterns/_flatten_hit';
+import {IndexPatternsCalculateIndicesProvider} from 'ui/index_patterns/_calculate_indices';
+import {IndexPatternsPatternCacheProvider} from 'ui/index_patterns/_pattern_cache';
+import {FieldsFetcherProvider} from 'ui/index_patterns/fields_fetcher_provider';
+import {SavedObjectsClientProvider, findObjectByTitle} from 'ui/saved_objects';
+import {nestedFormatHit} from './_format_hit';
+import {IndexPatternsNestedFlattenHitProvider} from './_flatten_hit';
 
-import { OldIndexPatternProvider } from 'ui/index_patterns/_index_pattern';
+import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 
 indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, Promise, confirmModalPromise, kbnUrl) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
@@ -26,6 +28,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
   const mappingSetup = Private(UtilsMappingSetupProvider);
   const FieldList = Private(IndexPatternsFieldListProvider);
   const flattenHit = Private(IndexPatternsFlattenHitProvider);
+  const nestedFlattenHit = Private(IndexPatternsNestedFlattenHitProvider);
   const calculateIndices = Private(IndexPatternsCalculateIndicesProvider);
   const patternCache = Private(IndexPatternsPatternCacheProvider);
   const type = 'index-pattern';
@@ -78,7 +81,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       throw new SavedObjectNotFound(
         type,
         indexPattern.id,
-        kbnUrl.eval('#/management/kibana/index?id={{id}}&name=', { id: markdownSaveId })
+        kbnUrl.eval('#/management/kibana/index?id={{id}}&name=', {id: markdownSaveId})
       );
     }
 
@@ -101,9 +104,27 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
     if (!indexPattern.nested) {
       indexPattern.nested = false;
+    } else {
+      // Change out the flattenHit to the nested version in order to avoid another hack
+      indexPattern.flattenHit = nestedFlattenHit(indexPattern);
+      indexPattern.formatHit = nestedFormatHit(indexPattern, fieldformats.getDefaultInstance('string'));
+      indexPattern.formatField = indexPattern.formatHit.formatField;
+
     }
     return indexFields(indexPattern);
   }
+
+  function sortRecursive(array, propertyName) {
+
+    _.forEach(array, function (item) {
+      if (item.fields) {
+        item.fields = sortRecursive(item.fields, propertyName);
+      }
+    });
+
+    return _.sortBy(array, propertyName).reverse();
+  }
+
 
   function isFieldRefreshRequired(indexPattern) {
     if (!indexPattern.fields) {
@@ -151,7 +172,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
         initFields(indexPattern); // re-init fields when config changes, but only if we already had fields
       }
     });
-    configWatchers.set(indexPattern, { unwatch });
+    configWatchers.set(indexPattern, {unwatch});
   }
 
   function unwatch(indexPattern) {
@@ -194,6 +215,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       this.flattenHit = flattenHit(this);
       this.formatHit = formatHit(this, fieldformats.getDefaultInstance('string'));
       this.formatField = this.formatHit.formatField;
+      this.displayPriorityFieldOrder = [];
     }
 
     get routes() {
@@ -220,6 +242,47 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
         })
         .then(response => updateFromElasticSearch(this, response))
         .then(() => this);
+    }
+
+    getDisplayPriorityFieldOrder() {
+      return this.computeDisplayPriorityFieldOrder();
+    }
+
+    buildDisplayPriorityFieldOrderMap() {
+      let fieldMap = {};
+      _.forEach(this.fields, function (field) {
+        if (field.nestedPath !== undefined) {
+          if (fieldMap[field.nestedPath] === undefined) {
+            fieldMap[field.nestedPath] = {
+              name: field.nestedPath,
+              displayPriority: -1,
+              fields: {}
+            };
+          }
+          fieldMap[field.nestedPath].fields[field.name] = {
+            name: field.name,
+            displayPriority: field.displayPriority
+          };
+          fieldMap[field.nestedPath].displayPriority = Math.max(fieldMap[field.nestedPath].displayPriority, field.displayPriority);
+        } else {
+          fieldMap[field.name] = {
+            name: field.name,
+            displayPriority: field.displayPriority
+          }
+        }
+      });
+      return fieldMap;
+    }
+
+
+    computeDisplayPriorityFieldOrder() {
+      const fieldMap = this.buildDisplayPriorityFieldOrderMap();
+
+      const sortedFields = sortRecursive(fieldMap, 'displayPriority').filter(function (obj) {
+        return obj.displayPriority >= 0;
+      });
+
+      return sortedFields;
     }
 
     // Get the source filtering configuration for that index.
@@ -271,15 +334,15 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     }
 
     getNonScriptedFields() {
-      return _.where(this.fields, { scripted: false });
+      return _.where(this.fields, {scripted: false});
     }
 
     getScriptedFields() {
-      return _.where(this.fields, { scripted: true });
+      return _.where(this.fields, {scripted: true});
     }
 
     getInterval() {
-      return this.intervalName && _.find(intervals, { name: this.intervalName });
+      return this.intervalName && _.find(intervals, {name: this.intervalName});
     }
 
     toIndexList(start, stop, sortDirection) {
@@ -305,7 +368,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
           return await calculateIndices(
             this.title, this.timeFieldName, start, stop, sortDirection
           );
-        } catch(error) {
+        } catch (error) {
           if (!isFieldStatsError(error)) {
             throw error;
           }
@@ -376,9 +439,9 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
           const confirmMessage =
             `An index pattern with the title '${this.title}' already exists.`;
 
-          return confirmModalPromise(confirmMessage, { confirmButtonText: 'Go to existing pattern' })
+          return confirmModalPromise(confirmMessage, {confirmButtonText: 'Go to existing pattern'})
             .then(() => {
-              kbnUrl.redirect('/management/kibana/indices/{{id}}', { id: duplicate.id });
+              kbnUrl.redirect('/management/kibana/indices/{{id}}', {id: duplicate.id});
               return true;
             }).catch(() => {
               return true;
@@ -392,7 +455,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
         const body = this.prepBody();
 
-        return savedObjectsClient.create(type, body, { id: this.id })
+        return savedObjectsClient.create(type, body, {id: this.id})
           .then(response => setId(this, response.id))
           .catch(err => {
             if (err.statusCode !== 409) {
@@ -418,7 +481,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
     save() {
       return savedObjectsClient.update(type, this.id, this.prepBody())
-        .then(({ id }) => setId(this, id));
+        .then(({id}) => setId(this, id));
     }
 
     refreshFields() {

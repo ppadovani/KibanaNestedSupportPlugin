@@ -48,6 +48,7 @@ field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScop
     const filterable = spec.name === '_id' || scripted || ((indexed || searchable) && type.filterable);
     const visualizable = aggregatable;
     const nestedPath = spec.nestedPath;
+    const displayPriority = spec.displayPriority || 1;
 
     obj.fact('name');
     obj.fact('type');
@@ -63,6 +64,7 @@ field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScop
     obj.fact('aggregatable', aggregatable);
     obj.fact('readFromDocValues', readFromDocValues);
     obj.writ('nestedPath', nestedPath);
+    obj.writ('displayPriority', displayPriority);
 
     // usage flags, read-only and won't be saved
     obj.comp('format', format);

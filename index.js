@@ -6,8 +6,9 @@ export default function (kibana) {
     name: 'nested-fields-support',
     uiExports: {
 
-      managementSections: [
-        'plugins/nested-fields-support/index_pattern/management'
+     managementSections: [
+        'plugins/nested-fields-support/index_pattern/management',
+        'plugins/nested-fields-support/discover/management'
       ],
 
       hacks: [
