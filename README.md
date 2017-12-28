@@ -50,7 +50,7 @@ language understands the fields and what fields are nested in order to properly 
 ## Index Pattern Management ##
 
 Adding support to an indedPattern requires that the indexPattern be defined first using the normal Kibana management
-application. Once the indexPattern has been created, selecte the new 'Nested Fields' management section:
+application. Once the indexPattern has been created, select the new 'Nested Fields' management section:
 
 ![Nested Fields management seciont](kibana-nested/nested-management.png)
 
@@ -58,8 +58,8 @@ Next find the indexPattern from the list, and use the button on the far right to
 
 ![Enable nested support](kibana-nested/activate-nested.png)
 
-**Note** At this time, if you refresh an indexPattern, you must deactivate/activate nested support to reload the 
-nestedPath information into the indexPattern.
+**Note: At this time, if you refresh an indexPattern, you must deactivate/activate nested support to reload the 
+nestedPath information into the indexPattern. **
 
 
 ## Query Language ## 
@@ -107,7 +107,7 @@ In a nutshell the above allows one to type a query that looks something like:
 So how does the new query language solve our problem?
 
 1. By parsing the queries in Kibana we have the ability to syntax check the query BEFORE it is converted to an Elasticsearch query.
-2. I Modified the Kibana code to load the nested information about an index, and pass the index information to the query parser. This allows:
+2. The modified the Kibana code to load the nested information about an index, and pass the index information to the query parser. This allows:
   * Field validation and feedback for invalid fields
   * Type validation against the values contained in the query
   * Nested query generation support
@@ -118,9 +118,8 @@ One of the first questions that may come to mind for many of you familiar with K
 
 ### Error Handling Examples ###
 
-__NOTE:__ In order to avoid issues with native Kibana queries, a toggle has been added 
-to the right of the magnifying glass search button. The toggle switches between native
-Kibana queries and the custom nested query langauge.
+__NOTE:__ In order to avoid issues with native Kibana queries, indexPatterns that have nested support turned on can
+only use the above query language.
 
 When typing the query, the query is constantly parsed. In this example a single letter 'l' was typed which did not match any known field in the index. Please note that the existing type ahead still works.
 ![invalid field](kibana-nested/invalid-field.png)
