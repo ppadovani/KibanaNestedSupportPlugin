@@ -7,21 +7,23 @@ See this issue for updates/screenshots: [Status updates and Screenshots](https:/
 
 ##Nested query and aggregation support for Kibana##
 
-The use of Elasticsearch and Kibana together provide a powerful platform for data analytics. One of the primary use cases for this platform is analyzing log data from services within an enterprise. A sample of a dashboard as provided by Elastic:
-
-![Sample Kibana dashboard](https://www.elastic.co/assets/blt45376e159402a169/Screen-Shot-2014-12-15-at-12.28.30-PM.png)
-
 ##Background##
-Here at HomeAway we primarily leverage Elasticsearch for ad-hoc search and retrieval of complex entities.  These entities are pulled from a variety of data sources and drive all of the internal services that run our business. The complexity of a particular entity type is determined by the business need.
  
 ![Sample Kibana dashboard](kibana-nested/simple-model.png)
 
-The above model illustrates a simple parent child relationship that might exist in one of our entities. The list of UMD objects is contained within the LMD entity and the entire entity is stored in an index in Elasticsearch. Within Elasticsearch this entity can be stored as multiple documents in a parent child relationship, or as a single document where the child objects are 'nested'. Here at HomeAway we chose the nested approach due to the memory overhead associated with the parent-child documents within Elasticsearch.
+The above model illustrates a simple parent child relationship that might exist in one an indexed document. 
+The home document contains an address, one or more rooms, one or more family members, and one or more cars. 
+Within Elasticsearch this entity can be stored as multiple documents in a parent child relationship, or as a single 
+document where the child objects are 'nested'. This plugin uses this model for testing purposes, and the mapping and 
+python script used to populate Elasticsearch with test data is contained in the scripts directory of this project.
 
-For standard Elasticsearch queries against the Elasticsearch API, querying against such an index requires some special handling and knowledge around what fields are actually nested in the index schema and what the nested path is to the child object. For additional details on nested queries please see [nested query documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-nested-query.html nested query documentation). When HomeAway began the roll out of Elasticsearch for ad-hoc search of entities, the decision was made to hide the complex JSON query DSL from Elasticsearch, and instead roll our own simplified query language. 
+For standard Elasticsearch queries against the Elasticsearch API, querying against such an index requires some special 
+handling and knowledge around what fields are actually nested in the index schema and what the nested path is to the 
+child object. For additional details on nested queries please see 
+[nested query documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-nested-query.html 
+nested query documentation). 
 
 ##The Issue##
-When HomeAway turned to the analytics side of Elasticsearch and began exploring how to leverage Kibana, we discovered that Kibana does not support nested queries, fields or objects. This is due to two things: 
 
 1. Kibana doesn't parse the query entered, and instead relies on Elasticsearch to [parse the query for it](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html parse the query for it). This leads to several issues:
   * No feedback when a query contains a field that doesn't exist in the index and returns no results.
@@ -29,8 +31,27 @@ When HomeAway turned to the analytics side of Elasticsearch and began exploring 
   * Feedback provided for invalid query syntax returns as an exception stack trace that can be difficult to decipher.
 2. Kibana doesn't know what fields are nested due to the way it loads the index mapping when an index is configured.
 
-##HomeAway's Solution##
-I realized that HomeAway has already solved the query side of the issue in Java, and porting this into Kibana would solve our needs. I began working on a fork of Kibana 4.3.1 a bit over a month ago as I had time, and finally have something to share. I will not go into details about how/what code changes were made to support this effort, instead I wish to focus on documentation and usage examples for the new query DSL. You can find the fork here: TBD
+##Solution##
+
+This plugin solves the nested issue with the following changes:
+
+1. Add a management section to enable/disable nested support for a particular indexPattern. This will add the needed 
+nested path data to each nested field and flip a boolean flag on the indexPattern itself.
+
+2. Add a new SQL like query language that is parsed within Kibana and outputs native elasticsearch queries. This 
+language understands the fields and what fields are nested in order to properly create native queries.
+
+3. Update the Discovery application to use the new query parser if an indexPattern has a nested flag set to true
+
+4. Update the underlying aggregation code to honor nested configuration within an indexPattern if present.
+
+5. **TBD** Update the discovery application to properly format and display nested data within the search results.
+
+## Index Pattern Management ##
+
+## Query Language ## 
+
+I will not go into details about how/what code changes were made to support this effort, instead I wish to focus on documentation and usage examples for the new query DSL.
 
 Here is the basic BNF:
 
@@ -82,7 +103,7 @@ More importantly, by implementing #2 above, this same nested information about a
 
 One of the first questions that may come to mind for many of you familiar with Kibana, is 'What about existing saved queries that use the Elasticsearch query string, or custom JSON queries?' The good news is that you can still use both of those. The code that was developed detects which kind of query was placed in the query field and acts accordingly. Queries saved and reloaded also are properly detected and acted on. 
 
-##Error Handling Examples##
+###Error Handling Examples###
 
 __NOTE:__ In order to avoid issues with native Kibana queries, a toggle has been added 
 to the right of the magnifying glass search button. The toggle switches between native
@@ -97,7 +118,7 @@ In this example, the query is not correctly formed as it doesn't contain a value
 Finally, if the user attempts to put a value that doesn't match the type of the field, the parser will send an error.
 ![invalid value](kibana-nested/invalid-value.png)
 
-##Nested Queries##
+###Nested Queries###
 
 In general you will never notice that nested queries are being generated, as this is done for you in the query parser. There are cases where a complex query requires that the nested fields be scoped correctly in order to return the correct results. This is where the unary EXISTS comes into play. The EXISTS provides a mechanism to scope a set of nested conditions together into a single condition. The thought here is that the use of EXISTS is checking for the existence of one or more nested objects within the parent.
 
@@ -114,6 +135,8 @@ When using EXISTS, whatever follows EXISTS as an expression, including surroundi
 uuid="15f82a5d-91b1-400f-97c4-6e3b9584972f" AND ( UMD_size=0 OR NOT EXISTS UMD.status = "OK" OR NOT EXISTS UMB.status = "PENDING") 
 
 Please note that when saving a new style query, the next time it is loaded EXISTS unaries will be automatically injected for each scoped nested query. This happens because the query stored in the Kibana index is actually the Elasticsearch JSON query generated by the parser, and it must be reverse parsed back into the new style query language.
+
+## Aggregation Support ##
 
 ##Current Status##
 
