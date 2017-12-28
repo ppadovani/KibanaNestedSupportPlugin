@@ -5,9 +5,9 @@ work from my fork of [Kibana](https://github.com/homeaway/kibana).
 
 See this issue for updates/screenshots: [Status updates and Screenshots](https://github.com/ppadovani/KibanaNestedSupportPlugin/issues/8)
 
-##Nested query and aggregation support for Kibana##
+## Nested query and aggregation support for Kibana ##
 
-##Background##
+## Background ##
  
 ![Sample Kibana dashboard](kibana-nested/simple-model.png)
 
@@ -23,7 +23,7 @@ child object. For additional details on nested queries please see
 [nested query documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-nested-query.html 
 nested query documentation). 
 
-##The Issue##
+## The Issue ##
 
 1. Kibana doesn't parse the query entered, and instead relies on Elasticsearch to [parse the query for it](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html parse the query for it). This leads to several issues:
   * No feedback when a query contains a field that doesn't exist in the index and returns no results.
@@ -31,7 +31,7 @@ nested query documentation).
   * Feedback provided for invalid query syntax returns as an exception stack trace that can be difficult to decipher.
 2. Kibana doesn't know what fields are nested due to the way it loads the index mapping when an index is configured.
 
-##Solution##
+## Solution ##
 
 This plugin solves the nested issue with the following changes:
 
@@ -48,6 +48,19 @@ language understands the fields and what fields are nested in order to properly 
 5. **TBD** Update the discovery application to properly format and display nested data within the search results.
 
 ## Index Pattern Management ##
+
+Adding support to an indedPattern requires that the indexPattern be defined first using the normal Kibana management
+application. Once the indexPattern has been created, selecte the new 'Nested Fields' management section:
+
+![Nested Fields management seciont](kibana-nested/nested-management.png)
+
+Next find the indexPattern from the list, and use the button on the far right to enable nested support:
+
+![Enable nested support](kibana-nested/activate-nested.png)
+
+**Note** At this time, if you refresh an indexPattern, you must deactivate/activate nested support to reload the 
+nestedPath information into the indexPattern.
+
 
 ## Query Language ## 
 
@@ -103,7 +116,7 @@ More importantly, by implementing #2 above, this same nested information about a
 
 One of the first questions that may come to mind for many of you familiar with Kibana, is 'What about existing saved queries that use the Elasticsearch query string, or custom JSON queries?' The good news is that you can still use both of those. The code that was developed detects which kind of query was placed in the query field and acts accordingly. Queries saved and reloaded also are properly detected and acted on. 
 
-###Error Handling Examples###
+### Error Handling Examples ###
 
 __NOTE:__ In order to avoid issues with native Kibana queries, a toggle has been added 
 to the right of the magnifying glass search button. The toggle switches between native
@@ -118,7 +131,7 @@ In this example, the query is not correctly formed as it doesn't contain a value
 Finally, if the user attempts to put a value that doesn't match the type of the field, the parser will send an error.
 ![invalid value](kibana-nested/invalid-value.png)
 
-###Nested Queries###
+### Nested Queries ###
 
 In general you will never notice that nested queries are being generated, as this is done for you in the query parser. There are cases where a complex query requires that the nested fields be scoped correctly in order to return the correct results. This is where the unary EXISTS comes into play. The EXISTS provides a mechanism to scope a set of nested conditions together into a single condition. The thought here is that the use of EXISTS is checking for the existence of one or more nested objects within the parent.
 
@@ -138,7 +151,7 @@ Please note that when saving a new style query, the next time it is loaded EXIST
 
 ## Aggregation Support ##
 
-##Current Status##
+## Current Status ##
 
 The referenced fork/branch is still a work in progress and likely still contains bugs. My desire to share the work with the community is driven by the need to gather feedback and find issues in the code prior to submitting a pull request to the Kibana team. Here is a list of the known issues and items still pedning:
 
