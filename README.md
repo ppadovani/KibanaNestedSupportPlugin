@@ -1,8 +1,12 @@
 # nested-fields-support
 
-> This plugin adds support for nested fields to Kibana. This is a work in progress, and is based off of the 
+This plugin adds support for nested fields to Kibana. This is based off of the 
 work from my fork of [Kibana](https://github.com/homeaway/kibana).
 
+Contributions of fixes, features etc. are welcome!
+
+# Status: Beta
+The running status is stored in an issue in order to answer questions and provide screenshots of current functionality.
 See this issue for updates/screenshots: [Status updates and Screenshots](https://github.com/ppadovani/KibanaNestedSupportPlugin/issues/8)
 
 ## Nested query and aggregation support for Kibana ##
@@ -158,11 +162,82 @@ Please note that when saving a new style query, the next time it is loaded EXIST
 
 ## Aggregation Support ##
 
-TODO - Docs
+Aggregation support for indexPatterns that have nested turned on is generally seamless. As shown in the pie chart
+example below:
+
+![aggregation example](kibana-nested/aggregation-example.png)
+
+The above example split the slices by cars.make, then by cars.color then finally by family.givenName. The nested 
+aggregations that were required were automatically injected into the aggregation query based on the information
+stored in the indexPattern. Note that the third aggregation is a nested aggregation in a completely different
+set of nested objects from the previous aggregations. The query generated for the above example is shown below:
+
+```{
+     "size": 0,
+     "query": {
+       "match_all": {}
+     },
+     "_source": {
+       "excludes": []
+     },
+     "aggs": {
+       "nested_2": {
+         "nested": {
+           "path": "cars"
+         },
+         "aggs": {
+           "2": {
+             "terms": {
+               "field": "cars.make",
+               "size": 5,
+               "order": {
+                 "_count": "desc"
+               }
+             },
+             "aggs": {
+               "3": {
+                 "terms": {
+                   "field": "cars.color",
+                   "size": 5,
+                   "order": {
+                     "_count": "desc"
+                   }
+                 },
+                 "aggs": {
+                   "nested_4": {
+                     "nested": {
+                       "path": "family"
+                     },
+                     "aggs": {
+                       "4": {
+                         "terms": {
+                           "field": "family.givenName",
+                           "size": 5,
+                           "order": {
+                             "_count": "desc"
+                           }
+                         }
+                       }
+                     }
+                   }
+                 }
+               }
+             }
+           }
+         }
+       }
+     }
+   }```
+
+There is one exception to this 'automatic' handling of aggregations. If you wish to have the parent aggregation be the
+aggregation used for the official count of the bucket contents, you must check the 'use count of parent document' box
+to enable this functionality.
 
 ---
 
-## development
+## Development
+
+
 
 See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) for instructions setting up your development environment. Once you have completed that, use the following npm tasks.
 
