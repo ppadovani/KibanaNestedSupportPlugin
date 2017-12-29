@@ -4,8 +4,9 @@ This plugin adds support for nested fields to Kibana. This is based off of the
 work from my fork of [Kibana](https://github.com/homeaway/kibana).
 
 Current support version matrix:
+
 | Plugin Version  | Kibana Version  |
-|---|---|
+| --- | --- |
 | 1.0.0-BetaX  | 5.6.5  |
 
 Contributions of fixes, features etc. are welcome!
