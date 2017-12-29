@@ -227,7 +227,8 @@ set of nested objects from the previous aggregations. The query generated for th
          }
        }
      }
-   }```
+   }
+   ```
 
 There is one exception to this 'automatic' handling of aggregations. If you wish to have the parent aggregation be the
 aggregation used for the official count of the bucket contents, you must check the 'use count of parent document' box
