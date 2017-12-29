@@ -172,7 +172,8 @@ aggregations that were required were automatically injected into the aggregation
 stored in the indexPattern. Note that the third aggregation is a nested aggregation in a completely different
 set of nested objects from the previous aggregations. The query generated for the above example is shown below:
 
-```{
+```
+{
      "size": 0,
      "query": {
        "match_all": {}
