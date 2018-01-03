@@ -6,7 +6,8 @@ export default function (kibana) {
     name: 'nested-fields-support',
     uiExports: {
 
-     managementSections: [
+      docViews: ['plugins/nested-fields-support/nested_support/doc_view/structure'],
+      managementSections: [
         'plugins/nested-fields-support/index_pattern/management',
         'plugins/nested-fields-support/discover/management'
       ],
@@ -28,7 +29,7 @@ export default function (kibana) {
 
     // Update the .kibana index-pattern type to include a new nested flag
     init(server, options) {
-      const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+      const {callWithInternalUser} = server.plugins.elasticsearch.getCluster('admin');
 
       callWithInternalUser('indices.putMapping', {
         index: ".kibana",
