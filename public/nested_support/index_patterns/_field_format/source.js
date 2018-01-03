@@ -48,7 +48,7 @@ app.run(function(config, Private) {
       const sortedFields = field.indexPattern.getDisplayPriorityFieldOrder();
 
       const highlights = (hit && hit.highlight) || {};
-      const formatted = field.indexPattern.formatHit(hit);
+      const formatted = field.indexPattern.formatHit(hit, true);
       const highlightPairs = [];
       const sourcePairs = [];
 

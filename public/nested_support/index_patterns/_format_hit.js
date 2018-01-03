@@ -31,18 +31,20 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
     return field.format.getConverterFor('html')(val, field, hit, parsedUrl);
   }
 
-  function formatHit(hit) {
-    if (hit.$$_formatted) return hit.$$_formatted;
+  function formatHit(hit, recurse) {
+    if (hit.$$_formatted && !recurse) return hit.$$_formatted;
+
+    if (hit.$$_structured && recurse) return hit.$$_structured;
 
     // use and update the partial cache, but don't rewrite it. _source is stored in partials
     // but not $$_formatted
-    const partials = hit.$$_partialFormatted || (hit.$$_partialFormatted = {});
-    const cache = hit.$$_formatted = {};
+    const partials = (recurse ? hit.$$_partialStructured : hit.$$_partialFormatted) || (recurse ? hit.$$_partialStructured = {}: hit.$$_partialFormatted = {});
+    const cache = (recurse ? hit.$$_structured = {} : hit.$$_formatted = {});
 
     _.forOwn(indexPattern.flattenHit(hit), function (val, fieldName) {
       // sync the formatted and partial cache
       // const formatted = partials[fieldName] == null ? convert(hit, val, fieldName) : partials[fieldName];
-      const formatted = partials[fieldName] == null ? convert(hit, val, fieldName, true) : partials[fieldName];
+      const formatted = partials[fieldName] == null ? convert(hit, val, fieldName, recurse) : partials[fieldName];
       cache[fieldName] = partials[fieldName] = formatted;
     });
 
