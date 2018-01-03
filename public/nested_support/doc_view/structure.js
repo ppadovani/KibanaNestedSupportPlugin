@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { DocViewsRegistryProvider } from 'ui/registry/doc_views';
+import {DocViewsRegistryProvider} from 'ui/registry/doc_views';
 
 import tableHtml from './structure.html';
 
@@ -15,18 +15,19 @@ DocViewsRegistryProvider.register(function () {
         filter: '=',
         columns: '=',
         onAddColumn: '=',
-        onRemoveColumn: '=',
+        onRemoveColumn: '='
       },
       controller: function ($scope) {
         $scope.mapping = $scope.indexPattern.fields.byName;
         $scope.flattened = $scope.indexPattern.flattenHit($scope.hit);
         $scope.formatted = $scope.indexPattern.formatHit($scope.hit, true);
         $scope.fields = _.keys($scope.flattened).sort();
+        $scope.visible = {};
 
         $scope.canToggleColumns = function canToggleColumn() {
           return (
-            _.isFunction($scope.onAddColumn)
-            && _.isFunction($scope.onRemoveColumn)
+              _.isFunction($scope.onAddColumn)
+              && _.isFunction($scope.onRemoveColumn)
           );
         };
 
@@ -35,6 +36,26 @@ DocViewsRegistryProvider.register(function () {
             $scope.onRemoveColumn(columnName);
           } else {
             $scope.onAddColumn(columnName);
+          }
+        };
+
+        $scope.visible = function (row, field, pos) {
+          let key = field;
+          if (pos !== undefined) {
+            key += pos;
+          }
+          return $scope.visible[key];
+        };
+
+        $scope.toggleVisible = function (field, pos) {
+          let key = field;
+          if (pos !== undefined) {
+            key += pos;
+          }
+          if ($scope.visible[key] === undefined) {
+            $scope.visible[key] = key;
+          } else {
+            $scope.visible[key] = undefined;
           }
         };
 
@@ -59,7 +80,7 @@ DocViewsRegistryProvider.register(function () {
             text = partials[key] = JSON.stringify(row); //indexPattern.convertField($scope.hit, row, fieldName, false);
           }
 
-          return _.trunc(text, {'length':200});
+          return _.trunc(text, {'length': 200});
         };
       }
     }

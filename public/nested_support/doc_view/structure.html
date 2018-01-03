@@ -1,4 +1,4 @@
-<script type="text/ng-template"  id="tree_item.html">
+<script type="text/ng-template" id="tree_item.html">
   <tr ng-if="!showArrayInObjectsWarning(subObj, field)">
     <td field-name="(fieldPrefix ? field.replace(fieldPrefix + '.', '') : field)"
         field-type="mapping[field].type"
@@ -50,50 +50,33 @@
          tooltip-placement="top"
          tooltip="Objects in arrays are not well supported."
          class="fa fa-warning text-color-warning ng-scope doc-viewer-object-array"></i>
-      <div class="doc-viewer-value" ng-bind-html="typeof((subFormatted ? subFormatted[field] : formatted[field])) === 'undefined' ? (subFormatted ? subFormatted[field] : hit[field]) : (subFormatted ? subFormatted[field] : formatted[field]) | trustAsHtml"></div>
+      <div class="doc-viewer-value"
+           ng-bind-html="typeof((subFormatted ? subFormatted[field] : formatted[field])) === 'undefined' ? (subFormatted ? subFormatted[field] : hit[field]) : (subFormatted ? subFormatted[field] : formatted[field]) | trustAsHtml"></div>
     </td>
   </tr>
   <tr ng-if="showArrayInObjectsWarning(subObj, field)">
-    <td colspan="3">
-      <table>
-        <tr>
-          <td field-name="(fieldPrefix ? field.replace(fieldPrefix + '.', '') : field)"
-              ng-click="toggleVisible(field + '_',pos)"
-              width="1%"
-              class="doc-viewer-field">
-            <i class="fa discover-table-open-icon"
-               ng-class="{ 'fa-caret-down': visible(doc, field + '_', pos), 'fa-caret-right': !visible(doc, field + '_', pos) }">
-            </i>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding-left: 15px" colspan="2">
-            <div id="expanded-data" ng-if="visible(doc, field + '_', pos)">
-              <div ng-repeat="(pos, subObj) in (subObj ? subObj[field] : flattened[field]) track by $index"
-                   ng-init="subFormattedArray = (subFormatted ? subFormatted[field] : formatted[field]); fieldPrefix = field" >
-                <table class="table table-condensed table-striped table-bordered">
-                  <tr>
-                    <td ng-click="toggleVisible(field, pos)" width="1%">
-                      <i class="fa discover-table-open-icon"
-                         ng-class="{ 'fa-caret-down': visible(doc, field, pos), 'fa-caret-right': !visible(doc, field, pos) }">
-                      </i>
-                    </td>
-                    <td ng-if="visible(doc, field, pos)">
-                      <table class="table table-condensed table-bordered">
-                        <tbody ng-repeat="(field, value) in subObj track by field" ng-if="true" onLoad="subFormatted = subFormattedArray[pos]" ng-include="'tree_item.html'" >
-                        </tbody>
-                      </table>
-                    </td>
-                    <td ng-if="!visible(doc, field, pos)" style="width: 99%; word-break: break-all; word-wrap: break-word; overflow:hidden;">
-                      {{ rowSummary(subObj, field, pos) }}
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-          </td>
-        </tr>
-      </table>
+    <td field-name="(fieldPrefix ? field.replace(fieldPrefix + '.', '') : field)"
+        ng-click="toggleVisible(field + '_',pos)"
+        width="1%"
+        class="doc-viewer-field">
+      <i class="fa discover-table-open-icon"
+         ng-class="{ 'fa-caret-down': visible(doc, field + '_', pos), 'fa-caret-right': !visible(doc, field + '_', pos) }">
+      </i>
+    </td>
+    <td style="padding-left: 15px" colspan="2" style="width: 100%">
+      <div id="expanded-data" ng-if="visible(doc, field + '_', pos)" style="overflow: auto; max-height: 200px;">
+        <div ng-repeat="(pos, subObj) in (subObj ? subObj[field] : flattened[field]) track by $index"
+             ng-init="subFormattedArray = (subFormatted ? subFormatted[field] : formatted[field]); fieldPrefix = field" style="border-style: ridge;">
+          <table class="table table-condensed table-bordered">
+            <tbody ng-repeat="(field, value) in subObj track by field" ng-if="true"
+                   onLoad="subFormatted = subFormattedArray[pos]" ng-include="'tree_item.html'">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div ng-if="!visible(doc, field + '_', pos)">
+        Expand for details.
+      </div>
     </td>
   </tr>
 </script>
