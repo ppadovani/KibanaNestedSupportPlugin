@@ -39,12 +39,14 @@ uiModules.get('apps/management')
         field.displayPriority = field.displayPriority + 1;
         field.indexPattern.computeDisplayPriorityFieldOrder();
         $scope.$parent.refreshSample = true;
+        $scope.$parent.dirty = true;
       };
 
       $scope.decrementDisplayPriority = function (field) {
         field.displayPriority = field.displayPriority - 1;
         field.indexPattern.computeDisplayPriorityFieldOrder();
         $scope.$parent.refreshSample = true;
+        $scope.$parent.dirty = true;
       };
 
       function refreshRows() {

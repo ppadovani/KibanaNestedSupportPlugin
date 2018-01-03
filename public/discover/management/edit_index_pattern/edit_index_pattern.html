@@ -22,8 +22,9 @@
       <p class="kuiText kuiVerticalRhythm">
         This page lists every field in the <strong>{{::indexPattern.title}}</strong>
         index and the field's associated core type as recorded by Elasticsearch.
-        While this list allows you to view the core type of each field, changing
-        field types must be done using Elasticsearch's
+        The display priority for each field determines the order the field shows up in the
+        search result summary, and can be seen in the sample below the table. Priority is from greatest to least,
+        while setting a field to -1 will hide it in the summary only.
         <a target="_window" href="http://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html">
           Mapping API
           <i aria-hidden="true" class="fa-link fa"></i>
@@ -45,24 +46,6 @@
         <div class="kuiInfoPanelBody">
           <div class="kuiInfoPanelBody__message">
             This index uses a <strong>time-based index pattern</strong> which repeats <span ng-bind="::indexPattern.getInterval().display"></span>
-          </div>
-        </div>
-      </div>
-
-      <div
-        ng-if="conflictFields.length"
-        class="kuiInfoPanel kuiInfoPanel--warning kuiVerticalRhythm"
-      >
-        <div class="kuiInfoPanelHeader">
-          <span class="kuiInfoPanelHeader__icon kuiIcon kuiIcon--warning fa-bolt"></span>
-          <span class="kuiInfoPanelHeader__title">
-            Mapping conflict
-          </span>
-        </div>
-
-        <div class="kuiInfoPanelBody">
-          <div class="kuiInfoPanelBody__message">
-            {{conflictFields.length > 1 ? conflictFields.length : 'A'}} field{{conflictFields.length > 1 ? 's' : ''}} {{conflictFields.length > 1 ? 'are' : 'is'}} defined as several types (string, integer, etc) across the indices that match this pattern. You may still be able to use these conflict fields in parts of Kibana, but they will be unavailable for functions that require Kibana to know their type. Correcting this issue will require reindexing your data.
           </div>
         </div>
       </div>
@@ -96,6 +79,16 @@
           >
             <option value="">All field types</option>
           </select>
+        </div>
+
+        <div class="kuiBarSection">
+          <button
+                  class="kuiButton kuiButton--primary"
+                  ng-disabled="!dirty"
+                  ng-click="indexPattern.save(); dirty=false"
+          >
+            Save
+          </button>
         </div>
 
       </form>
