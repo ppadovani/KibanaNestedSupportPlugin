@@ -63,7 +63,8 @@ routes.when('/management/kibana/nested_configuration', {
               index_pattern.fields.byName[field.name].nestedPath = hierarchyPaths[field.name];
             }
           });
-          index_pattern.nested = true;
+          index_pattern.activateNested();
+
           index_pattern.save();
         });
      }).then(response => {
@@ -73,7 +74,7 @@ routes.when('/management/kibana/nested_configuration', {
 
     $scope.deactivateIndex = function (pattern) {
       courier.indexPatterns.get(pattern.id).then(response => {
-        response.nested = false;
+        response.deactivateNested();
         response.save();
       }).then(response => {
         pattern.nested = false;

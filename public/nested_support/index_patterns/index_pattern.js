@@ -105,11 +105,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     if (!indexPattern.nested) {
       indexPattern.nested = false;
     } else {
-      // Change out the flattenHit to the nested version in order to avoid another hack
-      indexPattern.flattenHit = nestedFlattenHit(indexPattern);
-      indexPattern.formatHit = nestedFormatHit(indexPattern, fieldformats.getDefaultInstance('string'));
-      indexPattern.formatField = indexPattern.formatHit.formatField;
-
+      indexPattern.activateNested();
     }
     return indexFields(indexPattern);
   }
@@ -206,15 +202,20 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     );
   }
 
+
   class IndexPattern {
     constructor(id) {
       setId(this, id);
       this.metaFields = config.get('metaFields');
       this.getComputedFields = getComputedFields.bind(this);
 
-      this.flattenHit = flattenHit(this);
-      this.formatHit = formatHit(this, fieldformats.getDefaultInstance('string'));
-      this.formatField = this.formatHit.formatField;
+      this._legacyFlattenHit = this.flattenHit = flattenHit(this);
+      this._legacyFormatHit = this.formatHit = formatHit(this, fieldformats.getDefaultInstance('string'));
+      this._legacyFormatField = this.formatField = this.formatHit.formatField;
+
+      this.nestedFlattenHit = nestedFlattenHit(this);
+      this.nestedFormatHit = nestedFormatHit(this, fieldformats.getDefaultInstance('string'));
+      this.nestedFormatField = this.nestedFormatHit.formatField;
       this.displayPriorityFieldOrder = [];
     }
 
@@ -318,6 +319,20 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       });
       this.fields.splice(fieldIndex, 1);
       this.save();
+    }
+
+    activateNested() {
+      this.nested = true;
+      this.flattenHit = this.nestedFlattenHit;
+      this.formatHit = this.nestedFormatHit;
+      this.formatField = this.nestedFormatField;
+    }
+
+    deactivateNested() {
+      this.nested = false;
+      this.flattenHit = this._legacyFlattenHit;
+      this.formatHit = this._legacyFormatHit;
+      this.formatField = this._legacyFormatField;
     }
 
     popularizeField(fieldName, unit = 1) {
