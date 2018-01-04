@@ -1,9 +1,4 @@
 import _ from 'lodash';
-// import 'plugins/kibana/management/sections/indices/edit_index_pattern/index_header';
-// import 'plugins/kibana/management/sections/indices/edit_index_pattern/indexed_fields_table';
-// import 'plugins/kibana/management/sections/indices/edit_index_pattern/scripted_fields_table';
-// import 'plugins/kibana/management/sections/indices/edit_index_pattern/scripted_field_editor';
-// import 'plugins/kibana/management/sections/indices/edit_index_pattern/source_filters_table';
 import UrlProvider from 'ui/url';
 import { IndicesEditSectionsProvider } from './edit_sections';
 import uiRoutes from 'ui/routes';
