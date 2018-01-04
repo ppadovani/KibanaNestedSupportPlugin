@@ -1,5 +1,5 @@
 <script type="text/ng-template" id="tree_item.html">
-  <tr ng-if="!showArrayInObjectsWarning(subObj, field)">
+  <tr ng-if="!showArrayInObjectsWarning(subObj, field) || !indexPattern.nested">
     <td field-name="(fieldPrefix ? field.replace(fieldPrefix + '.', '') : field)"
         field-type="mapping[field].type"
         width="1%"
@@ -54,7 +54,7 @@
            ng-bind-html="typeof((subFormatted ? subFormatted[field] : formatted[field])) === 'undefined' ? (subFormatted ? subFormatted[field] : hit[field]) : (subFormatted ? subFormatted[field] : formatted[field]) | trustAsHtml"></div>
     </td>
   </tr>
-  <tr ng-if="showArrayInObjectsWarning(subObj, field)">
+  <tr ng-if="indexPattern.nested && showArrayInObjectsWarning(subObj, field)">
     <td field-name="(fieldPrefix ? field.replace(fieldPrefix + '.', '') : field)"
         ng-click="toggleVisible(field + '_',pos)"
         width="1%"

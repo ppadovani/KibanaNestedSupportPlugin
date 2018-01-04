@@ -278,7 +278,8 @@ view is shown below:
 
 ![Discover Nested](kibana-nested/discover-nested.png)
 
-Arrays/Lists of nested objects are shown in a scrollable list.
+Arrays/Lists of nested objects are shown in a scrollable list. If an index contains nested objects,
+but is not marked as nested, the structured viewer will behave as the eisting table viewer.
 
 ---
 
