@@ -60,11 +60,11 @@
         width="1%"
         class="doc-viewer-field">
       <i class="fa discover-table-open-icon"
-         ng-class="{ 'fa-caret-down': visible(doc, field + '_', pos), 'fa-caret-right': !visible(doc, field + '_', pos) }">
+         ng-class="{ 'fa-caret-down': visible(field + '_', pos), 'fa-caret-right': !visible(field + '_', pos) }">
       </i>
     </td>
     <td style="padding-left: 15px" colspan="2" style="width: 100%">
-      <div id="expanded-data" ng-if="visible(doc, field + '_', pos)" style="overflow: auto; max-height: 200px;">
+      <div id="expanded-data" ng-if="visible(field + '_', pos)" >
         <div ng-repeat="(pos, subObj) in (subObj ? subObj[field] : flattened[field]) track by $index"
              ng-init="subFormattedArray = (subFormatted ? subFormatted[field] : formatted[field]); fieldPrefix = field" style="border-style: ridge;">
           <table class="table table-condensed table-bordered">
@@ -74,8 +74,7 @@
           </table>
         </div>
       </div>
-      <div ng-if="!visible(doc, field + '_', pos)">
-        Expand for details.
+      <div ng-if="!visible(field + '_', pos)" ng-bind-html="rowSummary(subObj, field, pos)">
       </div>
     </td>
   </tr>
