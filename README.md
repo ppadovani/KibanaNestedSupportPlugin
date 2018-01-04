@@ -21,7 +21,7 @@ Please note that only version 5.6.5 of Kibana is supported as I try and wrap up 
 
 ## Background ##
  
-![Sample Kibana dashboard](kibana-nested/simple-model.png)
+![simple model](kibana-nested/simple-model.png)
 
 The above model illustrates a simple parent child relationship that might exist in one an indexed document. 
 The home document contains an address, one or more rooms, one or more family members, and one or more cars. 
@@ -243,6 +243,44 @@ There is one exception to this 'automatic' handling of aggregations. If you wish
 aggregation used for the official count of the bucket contents, you must check the 'use count of parent document' box
 to enable this functionality.
 
+## Discover Application Enhancements ##
+
+There are two major enhancements made to the discover application by this plugin: field display priority;
+nested field support.
+
+### Field Display Priority ###
+
+This feature allows a Kibana administrator to configure the order and/or hide fields within the summary text
+of discover results. By ordering the field display priority search results can be tailored to the
+index contents in order to allow users to easily find what they might be looking for. To configure the 
+discover settings for a particular index, click on the 'Discover Settings' section within the management application.
+This will bring up a view that looks like this:
+
+![Discover settings](kibana-nested/discover-settings.png)
+
+In the above image, the 'homes' index is selected, and a list of fields is displayed. Below the field list
+will appear a single sample from the selected index in for the user to see the results of their
+changes. The user can adjust each individual field up or down. Priorities are displayed greatest to least.
+A value of -1 will hide the field altogether from the summary results.
+
+NOTE: If an index does not have nested support turned on, the display priority settings on nested fields
+will not function as expected and is not supported.
+
+### Nested Field Support ###
+
+The Discover application does not support nested objects when viewing a result's details. Instead it
+displays a JSON formatted string as shown below:
+
+![Discover Example](kibana-nested/discover-settings.png)
+
+In order to address this issue, a new document view has been added called 'Structured'. An example of this
+view is shown below:
+
+![Discover Nested](kibana-nested/discover-nested.png)
+
+Arrays/Lists of nested objects are shown in a scrollable list. If an index contains nested objects,
+but is not marked as nested, the structured viewer will behave as the eisting table viewer.
+
 ---
 
 ## Development
@@ -250,6 +288,10 @@ to enable this functionality.
 
 
 See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) for instructions setting up your development environment. Once you have completed that, use the following npm tasks.
+
+  - `npm install`
+  
+    Install required dependencies
 
   - `npm start`
 

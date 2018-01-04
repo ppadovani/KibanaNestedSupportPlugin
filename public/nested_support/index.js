@@ -1,4 +1,4 @@
-import './index_pattern';
+import './index_patterns';
 import './discover';
 import './parse_query';
 import './courier';

@@ -1,0 +1,29 @@
+<div class="col-md-2 sidebar-container">
+  <div class="sidebar-list">
+    <ul class="list-unstyled">
+      <li
+        ng-if="!defaultIndex"
+        class="sidebar-item"
+      >
+        <div class="sidebar-item-title full-title">
+          <span class="label label-warning">Warning</span>
+          <p>No default index pattern. You must select or create one to continue.</p>
+        </div>
+      </li>
+
+      <li
+        ng-repeat="pattern in indexPatternList | orderBy:['-default','title'] track by pattern.id"
+        class="sidebar-item"
+      >
+        <a href="{{::pattern.url}}">
+          <div class="{{::pattern.class}}">
+            <i aria-hidden="true" ng-if="pattern.default" class="fa fa-star"></i>
+            <span ng-bind="::pattern.title"></span>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="col-md-10" ng-transclude></div>

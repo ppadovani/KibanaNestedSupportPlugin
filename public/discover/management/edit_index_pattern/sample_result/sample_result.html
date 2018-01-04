@@ -1,0 +1,13 @@
+<div class="discover-table" style="overflow: auto">
+  <table class="kbn-table table">
+    <tr class="discover-table-row">
+      <td ng-click="toggleRow()" data-test-subj="docTableExpandToggleColumn" class="ng-scope">
+        <button class="discover-table-open-button">
+          <span class="kuiIcon fa-caret-down" ng-class="{ 'fa-caret-down': open, 'fa-caret-right': !open }"></span>
+        </button>
+      </td>
+      <td class="discover-table-sourcefield" ng-bind-html="flattenedRow"></td>
+    </tr>
+  </table>
+
+</div>

@@ -1,0 +1,27 @@
+<table>
+  <tr>
+    <td rowspan="2" style="width: 40px;">
+      <span>{{field.displayPriority}}</span>
+    </td>
+    <td>
+      <button class="discover-table-open-button" ng-click="incrementDisplayPriority(field)">
+        <span class="kuiIcon fa-caret-square-o-up"></span>
+      </button>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <button class="discover-table-open-button" ng-model="indexPattern" ng-click="decrementDisplayPriority(field)">
+        <span class="kuiIcon fa-caret-square-o-down"></span>
+      </button>
+    </td>
+  </tr>
+</table>
+
+
+<i
+        aria-label="The type of this field changes across indices. It is unavailable for many analysis functions."
+        ng-if="field.type == 'conflict'"
+        tooltip="The type of this field changes across indices. It is unavailable for many analysis functions."
+        class="fa fa-warning text-color-warning">
+</i>
