@@ -100,7 +100,7 @@ Here is the basic BNF:
 
   * simpleValue : decimal \| NUMBER \| STRING \| NULL \| booleanValue \| IPV4 \| date \| dateTime
 
-  * operator : EQ \| LIKE \| GT EQ \| LT EQ \| GT \| LT
+  * operator : = \| ~= \| >= \| <= \| > \| <
 
   * comparison : fieldPath operator simpleValue
 
@@ -109,6 +109,8 @@ Here is the basic BNF:
   * unaryExpression : NOT e \| EXISTS e
 
   * e : booleExpression \| unaryExpression \| comparison \| fieldPath \| inClause \| isClause \| ( e )
+
+NOTE: The ~= operator allows for wildcard queries.: field ~= "test*"
 
 In a nutshell the above allows one to type a query that looks something like:
 
