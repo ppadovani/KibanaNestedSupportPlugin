@@ -5,6 +5,8 @@ work from my fork of [Kibana](https://github.com/homeaway/kibana).
 
 See the [Releases](https://github.com/ppadovani/KibanaNestedSupportPlugin/releases) for a list of releases. Each version of this plugin reflects the version of the Kibana release it supports.
 
+If a release doesn't exist for your version of Kibana, create an issue with the "Kibana version support" label. The release issues with the highest vote count will get first priority!
+
 Contributions of fixes, features etc. are welcome!
 
 # Status: Beta
@@ -98,7 +100,7 @@ Here is the basic BNF:
 
   * simpleValue : decimal \| NUMBER \| STRING \| NULL \| booleanValue \| IPV4 \| date \| dateTime
 
-  * operator : EQ \| LIKE \| GT EQ \| LT EQ \| GT \| LT
+  * operator : = \| ~= \| >= \| <= \| > \| <
 
   * comparison : fieldPath operator simpleValue
 
@@ -107,6 +109,8 @@ Here is the basic BNF:
   * unaryExpression : NOT e \| EXISTS e
 
   * e : booleExpression \| unaryExpression \| comparison \| fieldPath \| inClause \| isClause \| ( e )
+
+NOTE: The ~= operator allows for wildcard queries.: field ~= "test*"
 
 In a nutshell the above allows one to type a query that looks something like:
 

@@ -39,7 +39,7 @@ DocViewsRegistryProvider.register(function () {
           }
         };
 
-        $scope.visible = function (row, field, pos) {
+        $scope.visible = function (field, pos) {
           let key = field;
           if (pos !== undefined) {
             key += pos;
@@ -77,7 +77,7 @@ DocViewsRegistryProvider.register(function () {
           if (partials && partials[key] != null) {
             text = partials[key];
           } else {
-            text = partials[key] = JSON.stringify(row); //indexPattern.convertField($scope.hit, row, fieldName, false);
+            text = partials[key] = $scope.indexPattern._legacyFormatField($scope.hit, fieldName);
           }
 
           return _.trunc(text, {'length': 200});

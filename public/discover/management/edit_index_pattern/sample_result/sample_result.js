@@ -76,5 +76,3 @@ uiModules.get('apps/management', ['kibana/courier'])
       }
     }
   });
-
-//$scope.flattenedRow = indexPattern.flattenHit(row);

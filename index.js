@@ -7,6 +7,7 @@ export default function (kibana) {
     uiExports: {
 
       docViews: ['plugins/nested-fields-support/nested_support/doc_view/structure'],
+
       managementSections: [
         'plugins/nested-fields-support/index_pattern/management',
         'plugins/nested-fields-support/discover/management'
