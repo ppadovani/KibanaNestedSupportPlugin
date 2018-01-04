@@ -9,12 +9,6 @@ If a release doesn't exist for your version of Kibana, create an issue with the 
 
 Contributions of fixes, features etc. are welcome!
 
-# Status: Beta
-The running status is stored in an issue in order to answer questions and provide screenshots of current functionality.
-See this issue for updates/screenshots: [Status updates and Screenshots](https://github.com/ppadovani/KibanaNestedSupportPlugin/issues/8)
-
-Please note that only version 5.6.5 of Kibana is supported as I try and wrap up the code. I will backport and forward port after I have finished and cut the first version. 
-
 ## Nested query and aggregation support for Kibana ##
 
 ## Background ##
