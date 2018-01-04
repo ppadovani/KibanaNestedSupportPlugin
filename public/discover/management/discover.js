@@ -6,7 +6,6 @@ import routes from 'ui/routes';
 import 'ui/paginated_table';
 import { uiModules } from 'ui/modules';
 import template from 'plugins/nested-fields-support/index_pattern/management/nested.html';
-// import IndexPatternsPatternToWildcardProvider from 'ui/index_patterns/_pattern_to_wildcard';
 
 routes.when('/management/kibana/discover_results_configuration', {
   template,
