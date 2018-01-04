@@ -5,7 +5,7 @@ work from my fork of [Kibana](https://github.com/homeaway/kibana).
 
 See the [Releases](https://github.com/ppadovani/KibanaNestedSupportPlugin/releases) for a list of releases. Each version of this plugin reflects the version of the Kibana release it supports.
 
-If a release doesn't exist for your version of Kibana, create an issue. The release issues with the highest vote count will get first priority!
+If a release doesn't exist for your version of Kibana, create an issue with the "Kibana version support" label. The release issues with the highest vote count will get first priority!
 
 Contributions of fixes, features etc. are welcome!
 
