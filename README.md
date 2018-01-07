@@ -9,6 +9,14 @@ If a release doesn't exist for your version of Kibana, create an issue with the 
 
 Contributions of fixes, features etc. are welcome!
 
+## Installation ##
+
+Find the release that supports your version. The release numbers for this plugin mimic those of Kibana. So the 5.6.6 release of Kibana should use the 5.6.6-1.0.0 version of this plugin. To install this plugin:
+
+1. Get a command line prompt in the home directory of your Kibana release
+2. Find the url for this plugin's supported build for your release of Kibana. For example the supported version of this plugin for current release of Kibana 5.6.6 is [](https://github.com/ppadovani/KibanaNestedSupportPlugin/releases/download/5.6.6-1.0.0/nested-fields-support-5.6.6-1.0.0.zip).
+3. Issue this command: bin/kibana-plugin install <url to plugin release zip>
+
 ## Nested query and aggregation support for Kibana ##
 
 ## Background ##
