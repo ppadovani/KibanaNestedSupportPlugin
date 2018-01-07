@@ -1,4 +1,4 @@
-import {uiModules} from 'ui/modules';
+import uiModules from 'ui/modules';
 import noResultsTemplate from '../../discover/partials/no_results.html';
 
 uiModules

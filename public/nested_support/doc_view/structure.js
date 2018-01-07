@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {DocViewsRegistryProvider} from 'ui/registry/doc_views';
+import DocViewsRegistryProvider from 'ui/registry/doc_views';
 
 import tableHtml from './structure.html';
 

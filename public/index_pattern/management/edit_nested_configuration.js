@@ -2,7 +2,7 @@ import _ from 'lodash';
 import UrlProvider from 'ui/url';
 import { IndicesEditSectionsProvider } from './edit_sections';
 import uiRoutes from 'ui/routes';
-import { uiModules } from 'ui/modules';
+import uiModules from 'ui/modules';
 import template from './edit_nested_configuration.html';
 
 uiRoutes

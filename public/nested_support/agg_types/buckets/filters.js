@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { AggTypesBucketsBucketAggTypeProvider } from 'ui/agg_types/buckets/_bucket_agg_type';
-import { AggTypesBucketsCreateFilterFiltersProvider } from 'ui/agg_types/buckets/create_filter/filters';
-import { DecorateQueryProvider } from 'ui/courier/data_source/_decorate_query';
+import AggTypesBucketsBucketAggTypeProvider from 'ui/agg_types/buckets/_bucket_agg_type';
+import AggTypesBucketsCreateFilterFiltersProvider from 'ui/agg_types/buckets/create_filter/filters';
+import DecorateQueryProvider from 'ui/courier/data_source/_decorate_query';
 import { formatQuery } from 'ui/parse_query';
 import filtersTemplate from './filters.html';
 import * as Filters from 'ui/agg_types/buckets/filters';

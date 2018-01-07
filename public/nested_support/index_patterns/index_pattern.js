@@ -14,8 +14,7 @@ import {IndexPatternsFieldListProvider} from 'ui/index_patterns/_field_list';
 import {IndexPatternsFlattenHitProvider} from 'ui/index_patterns/_flatten_hit';
 import {IndexPatternsCalculateIndicesProvider} from 'ui/index_patterns/_calculate_indices';
 import {IndexPatternsPatternCacheProvider} from 'ui/index_patterns/_pattern_cache';
-import {FieldsFetcherProvider} from 'ui/index_patterns/fields_fetcher_provider';
-import {SavedObjectsClientProvider, findObjectByTitle} from 'ui/saved_objects';
+import { SavedObjectLoader } from 'ui/courier/saved_object/saved_object_loader';
 import {nestedFormatHit} from './_format_hit';
 import {IndexPatternsNestedFlattenHitProvider} from './_flatten_hit';
 
@@ -24,7 +23,6 @@ import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, Promise, confirmModalPromise, kbnUrl) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
   const getIds = Private(IndexPatternsGetIdsProvider);
-  const fieldsFetcher = Private(FieldsFetcherProvider);
   const intervals = Private(IndexPatternsIntervalsProvider);
   const DocSource = Private(AdminDocSourceProvider);
   const mappingSetup = Private(UtilsMappingSetupProvider);
@@ -44,7 +42,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     scriptedFields: '/management/kibana/indices/{{id}}?_a=(tab:scriptedFields)',
     sourceFilters: '/management/kibana/indices/{{id}}?_a=(tab:sourceFilters)'
   });
-  const savedObjectsClient = Private(SavedObjectsClientProvider);
+  const savedObjectsClient = Private(SavedObjectLoader);
 
   const mapping = mappingSetup.expandShorthand({
     title: 'string',
@@ -187,13 +185,13 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
   }
 
   function fetchFields(indexPattern) {
-    return Promise.resolve()
-    .then(() => fieldsFetcher.fetch(indexPattern))
-    .then(fields => {
-      const scripted = indexPattern.getScriptedFields();
-      const all = fields.concat(scripted);
-      initFields(indexPattern, all);
-    });
+    return mapper
+      .getFieldsForIndexPattern(indexPattern, { skipIndexPatternCache: true })
+      .then(fields => {
+        const scripted = indexPattern.getScriptedFields();
+        const all = fields.concat(scripted);
+        initFields(indexPattern, all);
+      });
   }
 
   class IndexPattern {

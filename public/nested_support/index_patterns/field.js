@@ -1,7 +1,7 @@
-import { ObjDefine } from 'ui/utils/obj_define';
-import { IndexPatternsFieldFormatProvider } from 'ui/index_patterns/_field_format/field_format';
-import { RegistryFieldFormatsProvider } from 'ui/registry/field_formats';
-import { getKbnFieldType } from 'src/utils/index';
+import ObjDefine from 'ui/utils/obj_define';
+import IndexPatternsFieldFormatProvider from 'ui/index_patterns/_field_format/field_format';
+import RegistryFieldFormatsProvider from 'ui/registry/field_formats';
+import getKbnFieldType from 'src/utils/index';
 import * as field from 'ui/index_patterns/_field';
 
 field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScope, Notifier) {

@@ -1,6 +1,6 @@
 import 'ui/courier';
-import { uiModules } from 'ui/modules';
-import { AggTypesMetricsMetricAggTypeProvider } from 'ui/agg_types/metrics/metric_agg_type';
+import uiModules from 'ui/modules';
+import AggTypesMetricsMetricAggTypeProvider from 'ui/agg_types/metrics/metric_agg_type';
 
 let app = uiModules.get('kibana/courier');
 

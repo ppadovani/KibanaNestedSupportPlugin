@@ -2,7 +2,7 @@ import { toUser, toUserIndexPattern } from './lib/to_user';
 import { fromUser, fromUserIndexPattern } from './lib/from_user';
 
 
-import {uiModules} from 'ui/modules';
+import uiModules from 'ui/modules';
 
 uiModules
   .get('kibana')

@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import { noWhiteSpace } from 'ui/utils/no_white_space';
-import { IndexPatternsFieldFormatProvider } from 'ui/index_patterns/_field_format/field_format';
-import { stringifySource } from 'ui/stringify/types/source';
-import { uiModules } from 'ui/modules';
+import noWhiteSpace from 'ui/utils/no_white_space';
+import IndexPatternsFieldFormatProvider from 'ui/index_patterns/_field_format/field_format';
+import stringifySource from 'ui/stringify/types/source';
+import uiModules  from 'ui/modules';
 import sourceTmpl from 'ui/stringify/types/_source.html';
 import nestedSrcTmpl from './_nested_source.html';
 

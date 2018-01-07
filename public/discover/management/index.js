@@ -1,20 +1,13 @@
-import { management } from 'ui/management';
-import { SavedObjectsClientProvider } from 'ui/saved_objects';
+import management from 'ui/management';
 import './edit_index_pattern';
 import uiRoutes from 'ui/routes';
-import { uiModules } from 'ui/modules';
+import uiModules from 'ui/modules';
 import indexTemplate from './index.html';
 
 
 const indexPatternsResolutions = {
-  indexPatterns: function (Private) {
-    const savedObjectsClient = Private(SavedObjectsClientProvider);
-
-    return savedObjectsClient.find({
-      type: 'index-pattern',
-      fields: ['title','nested'],
-      perPage: 10000
-    }).then(response => response.savedObjects);
+  indexPatternIds: function (courier) {
+    return courier.indexPatterns.getIds();
   }
 };
 
@@ -23,6 +16,7 @@ uiRoutes
   .defaults(/management\/kibana\/discover_results_configuration/, {
     resolve: indexPatternsResolutions
   });
+
 
 // wrapper directive, which sets some global stuff up like the left nav
 uiModules.get('apps/management')
@@ -36,12 +30,11 @@ uiModules.get('apps/management')
         config.bindToScope($scope, 'defaultIndex');
 
         $scope.$watch('defaultIndex', function () {
-          $scope.indexPatternList = $route.current.locals.indexPatterns.map(pattern => {
-            const id = pattern.id;
-
+          const ids = $route.current.locals.indexPatternIds;
+          $scope.indexPatternList = ids.map(function (id) {
             return {
               id: id,
-              title: pattern.get('title'),
+              title: id,
               url: kbnUrl.eval('#/management/kibana/discover_results_configuration/{{id}}', { id: id }),
               class: 'sidebar-item-title ' + ($scope.editingId === id ? 'active' : ''),
               default: $scope.defaultIndex === id

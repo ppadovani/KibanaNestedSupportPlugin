@@ -1,48 +1,69 @@
 import _ from 'lodash';
 import 'plugins/nested-fields-support/index_pattern/management/less/main.less';
-import { SavedObjectsClientProvider } from 'ui/saved_objects';
+import 'ui/courier';
+import 'ui/index_patterns';
 
 import routes from 'ui/routes';
 import 'ui/paginated_table';
-import { uiModules } from 'ui/modules';
+import uiModules from 'ui/modules';
 import template from 'plugins/nested-fields-support/index_pattern/management/nested.html';
+
+const app = uiModules.get('apps/management', [
+  'kibana/courier',
+  'kibana/index_patterns'
+]);
+
+const fetchPatterns = function(Promise, courier) {
+  courier.indexPatterns.getIds().then(ids => {
+    ids.map(id => {
+      Promise.resolve(courier.indexPatterns.get(id)).then(pattern => {
+        return {
+          id: pattern.id,
+          title: pattern.id,
+          nested: (pattern.nested !== undefined ? pattern.nested : false)
+        };
+      });
+    })
+  });
+}
 
 routes.when('/management/kibana/nested_configuration', {
   template,
+  // resolve: {
+  //   indexPatternList: fetchPatterns
+  // },
   controller($scope, $route, $window, courier, Private) {
-    const savedObjectsClient = Private(SavedObjectsClientProvider);
 
-    $scope.indexPatternList = $route.current.locals.indexPatterns.map(pattern => {
-      const id = pattern.id;
-      const nested = pattern.get('nested');
-      return {
-        id: id,
-        title: pattern.get('title'),
-        nested: (nested !== undefined ? nested : false),
-        class: 'sidebar-item-title ' + ($scope.editingId === id ? 'active' : ''),
-        default: $scope.defaultIndex === id
-      };
-    });
+    const ids = $route.current.locals.indexPatternIds;
+    $scope.indexPatternList = [];
+    for (var id in ids) {
+      $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
+    }
+    //   Promise.all(ids.map(function (id) {
+    //   courier.indexPatterns.get(id).then(pattern =>{
+    //     return {
+    //       id: pattern.id,
+    //       title: pattern.id,
+    //       nested: (pattern.nested !== undefined ? pattern.nested : false),
+    //       class: 'sidebar-item-title ' + ($scope.editingId === pattern.id ? 'active' : ''),
+    //       default: $scope.defaultIndex === pattern.id
+    //     };
+    //   });
+    // }));
 
     $scope.$watchMulti(['idx.nested'], refreshRows);
 
     function refreshRows() {
-      $scope.indexPatternList = $route.current.locals.indexPatterns.map(pattern => {
-        const id = pattern.id;
-        const nested = pattern.get('nested');
-        return {
-          id: id,
-          title: pattern.get('title'),
-          nested: (nested !== undefined ? nested : false),
-          class: 'sidebar-item-title ' + ($scope.editingId === id ? 'active' : ''),
-          default: $scope.defaultIndex === id
-        };
-      });
+      const ids = $route.current.locals.indexPatternIds;
+      $scope.indexPatternList = [];
+      for (var id in ids) {
+        $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
+      }
     }
 
     $scope.activateIndex = function (pattern) {
       courier.indexPatterns.get(pattern.id).then(index_pattern => {
-        savedObjectsClient._$http.get('../api/nested-fields-support/mappings/' + index_pattern.title).then(response => {
+        courier._$http.get('../api/nested-fields-support/mappings/' + index_pattern.title).then(response => {
           let hierarchyPaths = {};
           _.each(response.data, function (index, indexName) {
             if (indexName === '.kibana') return;

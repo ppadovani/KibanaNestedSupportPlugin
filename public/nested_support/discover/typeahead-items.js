@@ -1,4 +1,4 @@
-import {uiModules} from 'ui/modules';
+import uiModules from 'ui/modules';
 import noResultsTemplate from '../../discover/partials/typeahead-items.html';
 
 uiModules

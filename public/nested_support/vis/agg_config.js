@@ -6,7 +6,7 @@
  */
 
 import _ from 'lodash';
-import { RegistryFieldFormatsProvider } from 'ui/registry/field_formats';
+import RegistryFieldFormatsProvider from 'ui/registry/field_formats';
 import * as aggConfig from 'ui/vis/agg_config';
 
 aggConfig.VisAggConfigProvider = function(Private, fieldTypeFilter) {

@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import 'ui/doc_table/doc_table.less';
 import 'ui/styles/table.less';
-import {uiModules} from 'ui/modules';
+import uiModules from 'ui/modules';
 import template from './sample_result.html';
-import { noWhiteSpace } from 'ui/utils/no_white_space';
+import noWhiteSpace from 'ui/utils/no_white_space';
 
 const MIN_LINE_LENGTH = 20;
 

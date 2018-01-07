@@ -8,7 +8,6 @@ import { FetchProvider } from 'ui/courier/fetch';
 import { DecorateQueryProvider } from 'ui/courier/data_source/_decorate_query';
 import { FieldWildcardProvider } from 'ui/field_wildcard';
 import { getHighlightRequestProvider } from 'ui/highlight';
-import { migrateFilter } from 'ui/courier/data_source/_migrate_filter';
 import * as abstract from 'ui/courier/data_source/_abstract';
 
 abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter) {

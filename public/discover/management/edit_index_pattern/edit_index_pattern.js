@@ -5,7 +5,7 @@ import './sample_result';
 import UrlProvider from 'ui/url';
 import {IndicesEditSectionsProvider} from './edit_sections';
 import uiRoutes from 'ui/routes';
-import {uiModules} from 'ui/modules';
+import uiModules from 'ui/modules';
 import template from './edit_index_pattern.html';
 
 uiRoutes
