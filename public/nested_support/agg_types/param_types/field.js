@@ -1,7 +1,7 @@
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
 import { AggTypesParamTypesFieldProvider } from 'ui/agg_types/param_types/field';
-import editorHtml from './field.html';
+import editorHtml from '../controls/field.html';
 
 let app = uiModules.get('kibana/courier');
 

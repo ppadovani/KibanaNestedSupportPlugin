@@ -34,11 +34,15 @@ export default function (kibana) {
 
       callWithInternalUser('indices.putMapping', {
         index: ".kibana",
-        type: "index-pattern",
+        type: "doc",
         body: {
           properties: {
-            nested: {
-              type: "boolean"
+            "index-pattern": {
+              properties: {
+                nested: {
+                  type: "boolean"
+                }
+              }
             }
           }
         }

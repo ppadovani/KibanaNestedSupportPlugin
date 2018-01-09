@@ -1,14 +1,13 @@
 import _ from 'lodash';
-import { noWhiteSpace } from 'ui/utils/no_white_space';
-import { IndexPatternsFieldFormatProvider } from 'ui/index_patterns/_field_format/field_format';
-import { stringifySource } from 'ui/stringify/types/source';
+import { noWhiteSpace } from './no_white_space';
+import { stringifySource } from 'src/core_plugins/kibana/common/field_formats/types/source';
 import { uiModules } from 'ui/modules';
-import sourceTmpl from 'ui/stringify/types/_source.html';
+//import sourceTmpl from 'ui/stringify/types/_source.html';
 import nestedSrcTmpl from './_nested_source.html';
 
 
 let app = uiModules.get('kibana/courier');
-const template = _.template(noWhiteSpace(sourceTmpl));
+//const template = _.template(noWhiteSpace(sourceTmpl));
 const nestedTemplate = _.template(noWhiteSpace(nestedSrcTmpl));
 
 app.run(function(config, Private) {
@@ -62,7 +61,7 @@ app.run(function(config, Private) {
         }
       }, []);
 
-      return template({ defPairs: highlightPairs.concat(sourcePairs) });
+      return stringifySource.template({ defPairs: highlightPairs.concat(sourcePairs) });
     }
   };
 });

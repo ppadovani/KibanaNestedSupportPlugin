@@ -29,8 +29,10 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
    * @param {undefined|string} key - the key where the bucket was found
    * @returns {undefined}
    */
-  function collectBucket(write, id, bucket, key) {
+  function collectBucket(write, id, bucket, key, aggScale) {
     const agg = write.aggStack.shift();
+    const aggInfo = agg.write();
+    aggScale *= aggInfo.metricScale || 1;
 
     switch (agg.schema.group) {
       case 'buckets':
@@ -42,12 +44,12 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
           const splitting = write.canSplit && agg.schema.name === 'split';
           if (splitting) {
             write.split(agg, buckets, function forEachBucket(subBucket, key) {
-              collectBucket(write, agg.id, subBucket, agg.getKey(subBucket), key);
+              collectBucket(write, agg.id, subBucket, agg.getKey(subBucket), key, aggScale);
             });
           } else {
             buckets.forEach(function (subBucket, key) {
               write.cell(agg, agg.getKey(subBucket, key), function () {
-                collectBucket(write, agg.id, subBucket, agg.getKey(subBucket, key));
+                collectBucket(write, agg.id, subBucket, agg.getKey(subBucket, key), aggScale);
               });
             });
           }
@@ -56,7 +58,7 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
           // level, then pass all the empty buckets and jump back in for
           // the metrics.
           write.aggStack.unshift(agg);
-          passEmptyBuckets(write, bucket, key);
+          passEmptyBuckets(write, bucket, key, aggScale);
           write.aggStack.shift();
         } else {
           // we don't have any buckets, and we don't have isHierarchical
@@ -65,14 +67,19 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
         }
         break;
       case 'metrics':
-        const value = agg.getValue(id, bucket);
+        let value = agg.getValue(id, bucket);
+        // since the aggregation could be a non integer (such as a max date)
+        // only do the scaling calculation if it is needed.
+        if (aggScale !== 1) {
+          value *= aggScale;
+        }
         write.cell(agg, value, function () {
           if (!write.aggStack.length) {
             // row complete
             write.row();
           } else {
             // process the next agg at this same level
-            collectBucket(write, agg.id, bucket, key);
+            collectBucket(write, agg.id, bucket, key, aggScale);
           }
         });
         break;
@@ -83,19 +90,19 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
 
   // write empty values for each bucket agg, then write
   // the metrics from the initial bucket using collectBucket()
-  function passEmptyBuckets(write, bucket, key) {
+  function passEmptyBuckets(write, bucket, key, aggScale) {
     const agg = write.aggStack.shift();
 
     switch (agg.schema.group) {
       case 'metrics':
         // pass control back to collectBucket()
         write.aggStack.unshift(agg);
-        collectBucket(write, bucket, key);
+        collectBucket(write, bucket, key, aggScale);
         return;
 
       case 'buckets':
         write.cell(agg, '', function () {
-          passEmptyBuckets(write, bucket, key);
+          passEmptyBuckets(write, bucket, key, aggScale);
         });
     }
 
