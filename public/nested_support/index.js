@@ -1,8 +1,9 @@
-import './index_patterns';
-import './discover';
+import './query_bar/lib/queryLanguages';
+//import './index_patterns';
+//import './discover';
 import './parse_query';
-import './courier';
-import './agg_types';
-import './agg_response';
-import './filter_manager';
-import './vis';
+//import './courier';
+//import './agg_types';
+//import './agg_response';
+//import './filter_manager';
+//import './vis';
