@@ -166,24 +166,25 @@ url = 'http://' + esHostname
 # requests.post(url + '/schools', data=contents)
 # contents = open('propertytaxes.json', 'rb').read()
 # requests.post(url + '/propertytaxes', data=contents)
-
+headers = {'Content-Type': 'application/json'}
 print("Indexing homes")
 for i in homes:
-	requests.post(url + '/homes/home', json.dumps(i, default=lambda o: o.__dict__))
+#	print(json.dumps(i, default=lambda o: o.__dict__))
+	requests.post(url + '/homes/home', headers=headers, data=json.dumps(i, default=lambda o: o.__dict__))
 
 print("Indexing property taxes")
 for i in proptaxes:
-	requests.post(url + '/propertytaxes/record', json.dumps(i, default=lambda o: o.__dict__))
+	requests.post(url + '/propertytaxes/record', headers=headers, data=json.dumps(i, default=lambda o: o.__dict__))
 	
 print("Indexing schools")
 for i in elemschools:
-	requests.post(url + '/schools/school', json.dumps(i, default=lambda o: o.__dict__))
+	requests.post(url + '/schools/school', headers=headers, data=json.dumps(i, default=lambda o: o.__dict__))
 
 for i in midschools:
-	requests.post(url + '/schools/school', json.dumps(i, default=lambda o: o.__dict__))
+	requests.post(url + '/schools/school', headers=headers, data=json.dumps(i, default=lambda o: o.__dict__))
 
 for i in highschools:
-	requests.post(url + '/schools/school', json.dumps(i, default=lambda o: o.__dict__))
+	requests.post(url + '/schools/school', headers=headers, data=json.dumps(i, default=lambda o: o.__dict__))
 
 for i in colleges:
-	requests.post(url + '/schools/school', json.dumps(i, default=lambda o: o.__dict__))
+	requests.post(url + '/schools/school', headers=headers, data=json.dumps(i, default=lambda o: o.__dict__))

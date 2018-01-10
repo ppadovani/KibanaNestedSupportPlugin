@@ -1,12 +1,10 @@
 import { ObjDefine } from 'ui/utils/obj_define';
-import { FieldFormat } from 'src/ui/field_formats/field_format';
-import { RegistryFieldFormatsProvider } from 'src/ui/field_formats';
+import { RegistryFieldFormatsProvider } from 'ui/registry/field_formats';
 import { getKbnFieldType } from 'src/utils/index';
 import * as field from 'ui/index_patterns/_field';
 
 field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScope, Notifier) {
   const notify = new Notifier({ location: 'IndexPattern Field' });
-  const fieldFormat = Private(FieldFormat);
   const fieldFormats = Private(RegistryFieldFormatsProvider);
 
   function Field(indexPattern, spec) {
@@ -35,7 +33,7 @@ field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScop
     if (!type) type = getKbnFieldType('unknown');
 
     let format = spec.format;
-    if (!format || !(format instanceof fieldFormat)) {
+    if (!format || !(format instanceof FieldFormat)) {
       format = indexPattern.fieldFormatMap[spec.name] || fieldFormats.getDefaultInstance(spec.type);
     }
 

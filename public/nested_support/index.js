@@ -1,5 +1,5 @@
-import './query_bar/lib/queryLanguages';
-//import './index_patterns';
+import './query_bar';
+import './index_patterns';
 //import './discover';
 import './parse_query';
 //import './courier';

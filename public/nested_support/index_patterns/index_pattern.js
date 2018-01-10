@@ -20,6 +20,16 @@ import {IndexPatternsNestedFlattenHitProvider} from './_flatten_hit';
 
 import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 
+export function getRoutes() {
+  return {
+    edit: '/management/kibana/indices/{{id}}',
+    addField: '/management/kibana/indices/{{id}}/create-field',
+    indexedFields: '/management/kibana/indices/{{id}}?_a=(tab:indexedFields)',
+    scriptedFields: '/management/kibana/indices/{{id}}?_a=(tab:scriptedFields)',
+    sourceFilters: '/management/kibana/indices/{{id}}?_a=(tab:sourceFilters)'
+  };
+}
+
 indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, Promise, confirmModalPromise, kbnUrl) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
   const getConfig = (...args) => config.get(...args);
@@ -41,7 +51,6 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
   const mapping = mappingSetup.expandShorthand({
     title: 'text',
     timeFieldName: 'keyword',
-    notExpandable: 'boolean',
     intervalName: 'keyword',
     nested: 'boolean',
     fields: 'json',
@@ -216,7 +225,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     }
 
     get routes() {
-      return OldIndexPatternProvider.getRoutes();
+      return getRoutes();
     }
 
     init() {

@@ -1,17 +1,19 @@
 import _ from 'lodash';
 import { noWhiteSpace } from './no_white_space';
-import { stringifySource } from 'src/core_plugins/kibana/common/field_formats/types/source';
+import { FieldFormat } from 'src/ui/field_formats/field_format';
+import { createSourceFormat } from 'src/core_plugins/kibana/common/field_formats/types/source';
+import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
 import { uiModules } from 'ui/modules';
-//import sourceTmpl from 'ui/stringify/types/_source.html';
 import nestedSrcTmpl from './_nested_source.html';
 
 
 let app = uiModules.get('kibana/courier');
-//const template = _.template(noWhiteSpace(sourceTmpl));
 const nestedTemplate = _.template(noWhiteSpace(nestedSrcTmpl));
 
 app.run(function(config, Private) {
-  const Source = Private(stringifySource);
+  const fieldformats = Private(RegistryFieldFormatsProvider);
+
+  const SourceFormat = fieldformats.getType("_source");
 
   function genNested(sortedFields, highlights, formattedValue) {
     let nestedObj = '';
@@ -38,7 +40,7 @@ app.run(function(config, Private) {
     return nestedObj;
   }
 
-  Source.prototype._convert = {
+  SourceFormat.prototype._convert = {
     text: JSON.stringify(),
     html: function sourceToHtml(source, field, hit) {
       if (!field) return this.getConverterFor('text')(source, field, hit);
