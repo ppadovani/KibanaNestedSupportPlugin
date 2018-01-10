@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import jison from 'jison';
-import { DecorateQueryProvider } from 'ui/courier/data_source/_decorate_query';
+import {DecorateQueryProvider} from 'ui/courier/data_source/_decorate_query';
 
 let bnf = require('raw!./query_lang.jison');
 let ngModel;
@@ -47,19 +47,17 @@ export function fromUser(text, model) {
       return getQueryStringQuery(text);
     }
   } else {
-    if (ngModel.$parent.indexPattern.nested) {
-      try {
-        if (ngModel.filter) {
-          ngModel.filter.base_query = text;
-        }
-        let parsed = parser.parse(text).toJson();
-        return JSON.parse(parsed);
-      } catch (e) {
-        ngModel.parseError = e.message;
-        return undefined;
+    try {
+      if (ngModel.filter) {
+        ngModel.filter.base_query = text;
       }
+      let parsed = parser.parse(text).toJson();
+      ngModel.$parent.parseError = undefined;
+      return JSON.parse(parsed);
+    } catch (e) {
+      ngModel.$parent.parseError = e.message;
+      return undefined;
     }
-    return getQueryStringQuery(text);
   }
 }
 

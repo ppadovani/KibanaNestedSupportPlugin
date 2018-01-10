@@ -17,14 +17,16 @@ uiModules
           $scope.ngModel = fromUser($scope.ngModel, ($scope ? $scope.$parent : undefined));
         };
 
+        $scope.indexPattern = $scope.$parent.$parent.$parent.$parent.indexPattern;
+
         let fieldMap;
 
-        if ($scope.$parent.indexPattern.nested) {
+        if ($scope.indexPattern.nested) {
           attr.placeholder = 'Search.. (e.g. status=200 AND extension="PHP"';
         }
 
-        if ($scope.$parent.indexPattern) {
-          fieldMap = $scope.$parent.indexPattern.fields;
+        if ($scope.indexPattern) {
+          fieldMap = $scope.indexPattern.fields;
         }
 
         toUserIndexPattern(fieldMap);

@@ -6,9 +6,18 @@ import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
 import { uiModules } from 'ui/modules';
 import nestedSrcTmpl from './_nested_source.html';
 
+const templateHtml = `
+  <dl class="source truncate-by-height">
+    <% defPairs.forEach(function (def) { %>
+      <dt><%- def[0] %>:</dt>
+      <dd><%= def[1] %></dd>
+      <%= ' ' %>
+    <% }); %>
+  </dl>`;
 
 let app = uiModules.get('kibana/courier');
 const nestedTemplate = _.template(noWhiteSpace(nestedSrcTmpl));
+const template = _.template(noWhiteSpace(templateHtml));
 
 app.run(function(config, Private) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
@@ -63,7 +72,7 @@ app.run(function(config, Private) {
         }
       }, []);
 
-      return stringifySource.template({ defPairs: highlightPairs.concat(sourcePairs) });
+      return template({ defPairs: highlightPairs.concat(sourcePairs) });
     }
   };
 });
