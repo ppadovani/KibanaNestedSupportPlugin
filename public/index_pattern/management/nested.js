@@ -13,32 +13,34 @@ const app = uiModules.get('apps/management', [
   'kibana/index_patterns'
 ]);
 
-const fetchPatterns = function(Promise, courier) {
-  courier.indexPatterns.getIds().then(ids => {
-    ids.map(id => {
-      Promise.resolve(courier.indexPatterns.get(id)).then(pattern => {
-        return {
-          id: pattern.id,
-          title: pattern.id,
-          nested: (pattern.nested !== undefined ? pattern.nested : false)
-        };
-      });
-    })
-  });
-}
+
+const fetchPatterns = {
+  indexPatternList: function ($scope, courier) {
+    return $scope.indexPatternIds.map(id => {
+        courier.indexPatterns.get(id).then(pattern => {
+          return {
+            id: pattern.id,
+            title: pattern.id,
+            nested: (pattern.nested !== undefined ? pattern.nested : false)
+          };
+       })
+     })
+  }
+};
 
 routes.when('/management/kibana/nested_configuration', {
   template,
+  resolve: fetchPatterns,
   // resolve: {
   //   indexPatternList: fetchPatterns
   // },
   controller($scope, $route, $window, courier, Private) {
 
-    const ids = $route.current.locals.indexPatternIds;
-    $scope.indexPatternList = [];
-    for (var id in ids) {
-      $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
-    }
+    // const ids = $route.current.locals.indexPatternIds;
+    // $scope.indexPatternList = [];
+    // for (var id in ids) {
+    //   $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
+    // }
     //   Promise.all(ids.map(function (id) {
     //   courier.indexPatterns.get(id).then(pattern =>{
     //     return {
@@ -54,49 +56,54 @@ routes.when('/management/kibana/nested_configuration', {
     $scope.$watchMulti(['idx.nested'], refreshRows);
 
     function refreshRows() {
-      const ids = $route.current.locals.indexPatternIds;
-      $scope.indexPatternList = [];
-      for (var id in ids) {
-        $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
-      }
+      // const ids = $route.current.locals.indexPatternIds;
+      // $scope.indexPatternList = [];
+      // for (var id in ids) {
+      //   $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
+      // }
     }
 
     $scope.activateIndex = function (pattern) {
       courier.indexPatterns.get(pattern.id).then(index_pattern => {
         courier._$http.get('../api/nested-fields-support/mappings/' + index_pattern.title).then(response => {
-          let hierarchyPaths = {};
-          _.each(response.data, function (index, indexName) {
-            if (indexName === '.kibana') return;
-            _.each(index.mappings, function (mappings, typeName) {
-              var parent = mappings._parent;
-              _.each(mappings.properties, function (field, name) {
-                // call the define mapping recursive function
-                defineMapping(parent, hierarchyPaths, undefined, name, field, undefined);
-              });
-            });
+        let hierarchyPaths = {};
+      _.each(response.data, function (index, indexName) {
+        if (indexName === '.kibana') return;
+        _.each(index.mappings, function (mappings, typeName) {
+          var parent = mappings._parent;
+          _.each(mappings.properties, function (field, name) {
+            // call the define mapping recursive function
+            defineMapping(parent, hierarchyPaths, undefined, name, field, undefined);
           });
-          _.each(index_pattern.fields, function (field) {
-            if ( hierarchyPaths[field.name] !== undefined ) {
-              field.nestedPath = hierarchyPaths[field.name];
-              index_pattern.fields.byName[field.name].nestedPath = hierarchyPaths[field.name];
-            }
-          });
-          index_pattern.activateNested();
-
-          index_pattern.save();
         });
-     }).then(response => {
-        pattern.nested = true;
       });
+      _.each(index_pattern.fields, function (field) {
+        if (hierarchyPaths[field.name] !== undefined) {
+          field.nestedPath = hierarchyPaths[field.name];
+          index_pattern.fields.byName[field.name].nestedPath = hierarchyPaths[field.name];
+        }
+      });
+      index_pattern.activateNested();
+
+      index_pattern.save();
+    })
+      ;
+    }).
+      then(response => {
+        pattern.nested = true;
+    })
+      ;
     };
 
     $scope.deactivateIndex = function (pattern) {
       courier.indexPatterns.get(pattern.id).then(response => {
         response.deactivateNested();
-        response.save();
-      }).then(response => {
+      response.save();
+    }).
+      then(response => {
         pattern.nested = false;
-      });
+    })
+      ;
     };
 
     function defineMapping(parent, hierarchyPaths, parentPath, name, rawField, nestedPath) {
