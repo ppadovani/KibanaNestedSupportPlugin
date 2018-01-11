@@ -1,30 +1,27 @@
 import * as indexPattern from 'ui/index_patterns/_index_pattern';
 import _ from 'lodash';
 import {SavedObjectNotFound, DuplicateField, IndexPatternMissingIndices} from 'ui/errors';
-import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
-import { AdminDocSourceProvider } from 'ui/courier/data_source/admin_doc_source';
+import getComputedFields from 'ui/index_patterns/_get_computed_fields';
+import formatHit from 'ui/index_patterns/_format_hit';
+import RegistryFieldFormatsProvider from 'ui/registry/field_formats';
+import IndexPatternsGetIdsProvider from 'ui/index_patterns/_get_ids';
+import IndexPatternsMapperProvider from 'ui/index_patterns/_mapper';
+import IndexPatternsIntervalsProvider from 'ui/index_patterns/_intervals';
+import DocSourceProvider from 'ui/courier/data_source/admin_doc_source';
 import UtilsMappingSetupProvider from 'ui/utils/mapping_setup';
-import {Notifier} from 'ui/notify';
-
-import {getComputedFields} from 'ui/index_patterns/_get_computed_fields';
-import {formatHit} from 'ui/index_patterns/_format_hit';
-import { IndexPatternsGetIdsProvider } from 'ui/index_patterns/_get_ids';
-import {IndexPatternsIntervalsProvider} from 'ui/index_patterns/_intervals';
-import {IndexPatternsFieldListProvider} from 'ui/index_patterns/_field_list';
-import {IndexPatternsFlattenHitProvider} from 'ui/index_patterns/_flatten_hit';
-import {IndexPatternsCalculateIndicesProvider} from 'ui/index_patterns/_calculate_indices';
-import {IndexPatternsPatternCacheProvider} from 'ui/index_patterns/_pattern_cache';
-import { SavedObjectLoader } from 'ui/courier/saved_object/saved_object_loader';
-import {nestedFormatHit} from './_format_hit';
-import {IndexPatternsNestedFlattenHitProvider} from './_flatten_hit';
+import IndexPatternsFieldListProvider from 'ui/index_patterns/_field_list';
+import IndexPatternsFlattenHitProvider from 'ui/index_patterns/_flatten_hit';
+import IndexPatternsCalculateIndicesProvider from 'ui/index_patterns/_calculate_indices';
+import IndexPatternsPatternCacheProvider from 'ui/index_patterns/_pattern_cache';
 
 import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 
-indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, Promise, confirmModalPromise, kbnUrl) {
+indexPattern.IndexPatternFactory = function (Private, Notifier, config, kbnIndex, Promise, confirmModalPromise) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
   const getIds = Private(IndexPatternsGetIdsProvider);
+  const mapper = Private(IndexPatternsMapperProvider);
   const intervals = Private(IndexPatternsIntervalsProvider);
-  const DocSource = Private(AdminDocSourceProvider);
+  const DocSource = Private(DocSourceProvider);
   const mappingSetup = Private(UtilsMappingSetupProvider);
   const FieldList = Private(IndexPatternsFieldListProvider);
   const flattenHit = Private(IndexPatternsFlattenHitProvider);
@@ -42,7 +39,6 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     scriptedFields: '/management/kibana/indices/{{id}}?_a=(tab:scriptedFields)',
     sourceFilters: '/management/kibana/indices/{{id}}?_a=(tab:sourceFilters)'
   });
-  const savedObjectsClient = Private(SavedObjectLoader);
 
   const mapping = mappingSetup.expandShorthand({
     title: 'string',
@@ -55,22 +51,22 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     fieldFormatMap: {
       type: 'string',
       _serialize(map = {}) {
-        const serialized = _.transform(map, serializeFieldFormatMap);
+        const serialized = _.transform(map, serialize);
         return _.isEmpty(serialized) ? undefined : JSON.stringify(serialized);
       },
       _deserialize(map = '{}') {
-        return _.mapValues(JSON.parse(map), deserializeFieldFormatMap);
+        return _.mapValues(JSON.parse(map), deserialize);
       }
     }
   });
 
-  function serializeFieldFormatMap(flat, format, field) {
+  function serialize(flat, format, field) {
     if (format) {
       flat[field] = format;
     }
   }
 
-  function deserializeFieldFormatMap(mapping) {
+  function deserialize(mapping) {
     const FieldFormat = fieldformats.byId[mapping.id];
     return FieldFormat && new FieldFormat(mapping.params);
   }
@@ -109,31 +105,9 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     return promise;
   }
 
-  function sortRecursive(array, propertyName) {
-
-    _.forEach(array, function (item) {
-      if (item.fields) {
-        item.fields = sortRecursive(item.fields, propertyName);
-      }
-    });
-
-    return _.sortBy(array, propertyName).reverse();
-  }
-
-
-  function isFieldRefreshRequired(indexPattern) {
-    if (!indexPattern.fields) {
-      return true;
-    }
-
-    return indexPattern.fields.every(field => {
-      // See https://github.com/elastic/kibana/pull/8421
-      const hasFieldCaps = ('aggregatable' in field) && ('searchable' in field);
-
-      // See https://github.com/elastic/kibana/pull/11969
-      const hasDocValuesFlag = ('readFromDocValues' in field);
-
-      return !hasFieldCaps || !hasDocValuesFlag;
+  function containsFieldCapabilities(fields) {
+    return _.any(fields, (field) => {
+      return _.has(field, 'aggregatable') && _.has(field, 'searchable');
     });
   }
 
@@ -144,7 +118,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       return promise;
     }
 
-    if (isFieldRefreshRequired(indexPattern)) {
+    if (!indexPattern.fields || !containsFieldCapabilities(indexPattern.fields)) {
       promise = indexPattern.refreshFields();
     }
 
@@ -372,47 +346,33 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
     toDetailedIndexList(start, stop, sortDirection) {
       return Promise.resolve().then(() => {
-      if (this.isTimeBasedInterval()) {
+        const interval = this.getInterval();
+        if (interval) {
           return intervals.toIndexList(
-            this.id, this.getInterval(), start, stop, sortDirection
+            this.id, interval, start, stop, sortDirection
         );
       }
 
-      if (this.isTimeBasedWildcard() && this.isIndexExpansionEnabled()) {
+        if (this.isWildcard() && this.hasTimeField() && this.canExpandIndices()) {
           return calculateIndices(
             this.id, this.timeFieldName, start, stop, sortDirection
           );
       }
 
-      return [
-        {
+        return {
             index: this.id,
           min: -Infinity,
           max: Infinity
-        }
-      ];
+        };
       });
     }
 
-    isIndexExpansionEnabled() {
+    canExpandIndices() {
       return !this.notExpandable;
     }
 
-    isTimeBased() {
-      return !!this.timeFieldName && (!this.fields || !!this.getTimeField());
-    }
-
-    isTimeBasedInterval() {
-      return this.isTimeBased() && !!this.getInterval();
-    }
-
-    isTimeBasedWildcard() {
-      return this.isTimeBased() && this.isWildcard();
-    }
-
-    getTimeField() {
-      if (!this.timeFieldName || !this.fields || !this.fields.byName) return;
-      return this.fields.byName[this.timeFieldName];
+    hasTimeField() {
+      return !!(this.timeFieldName && this.fields.byName[this.timeFieldName]);
     }
 
     isWildcard() {
@@ -473,7 +433,9 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     }
 
     refreshFields() {
-      return fetchFields(this)
+      return mapper
+      .clearCache(this)
+      .then(() => fetchFields(this))
       .then(() => this.save())
       .catch((err) => {
         notify.error(err);
@@ -484,10 +446,9 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
         // but we do not want to potentially make any pages unusable
         // so do not rethrow the error here
         if (err instanceof IndexPatternMissingIndices) {
-          return [];
+          return;
         }
-
-        throw err;
+        return Promise.reject(err);
       });
     }
 

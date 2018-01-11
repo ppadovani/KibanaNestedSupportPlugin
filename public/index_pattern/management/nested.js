@@ -15,24 +15,7 @@ const app = uiModules.get('apps/management', [
 
 routes.when('/management/kibana/nested_configuration', {
   template,
-  controller($scope, $route, $window, courier, Private) {
-
-    // const ids = $route.current.locals.indexPatternIds;
-    // $scope.indexPatternList = [];
-    // for (var id in ids) {
-    //   $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
-    // }
-    //   Promise.all(ids.map(function (id) {
-    //   courier.indexPatterns.get(id).then(pattern =>{
-    //     return {
-    //       id: pattern.id,
-    //       title: pattern.id,
-    //       nested: (pattern.nested !== undefined ? pattern.nested : false),
-    //       class: 'sidebar-item-title ' + ($scope.editingId === pattern.id ? 'active' : ''),
-    //       default: $scope.defaultIndex === pattern.id
-    //     };
-    //   });
-    // }));
+  controller($scope, $route, $http, courier, Private) {
 
     $scope.indexPatternList = $route.current.locals.indexPatternList;
 
@@ -46,9 +29,8 @@ routes.when('/management/kibana/nested_configuration', {
       // }
     }
 
-    $scope.activateIndex = function (pattern) {
-      courier.indexPatterns.get(pattern.id).then(index_pattern => {
-        courier._$http.get('../api/nested-fields-support/mappings/' + index_pattern.title).then(response => {
+    $scope.activateIndex = function (index_pattern) {
+      $http.get('../api/nested-fields-support/mappings/' + index_pattern.title).then(response => {
         let hierarchyPaths = {};
       _.each(response.data, function (index, indexName) {
         if (indexName === '.kibana') return;
@@ -69,13 +51,10 @@ routes.when('/management/kibana/nested_configuration', {
       index_pattern.activateNested();
 
       index_pattern.save();
-    })
-      ;
     }).
       then(response => {
-        pattern.nested = true;
+        index_pattern.nested = true;
     })
-      ;
     };
 
     $scope.deactivateIndex = function (pattern) {
