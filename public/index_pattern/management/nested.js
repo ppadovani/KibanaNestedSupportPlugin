@@ -14,23 +14,28 @@ const app = uiModules.get('apps/management', [
 ]);
 
 
-const fetchPatterns = {
-  indexPatternList: function ($scope, courier) {
-    return $scope.indexPatternIds.map(id => {
+function fetchPatterns (courier) {
+    var promise = new Promise(function() {
+      return courier.indexPatterns.getIds().then(ids => ids.map(id => {
         courier.indexPatterns.get(id).then(pattern => {
-          return {
-            id: pattern.id,
-            title: pattern.id,
-            nested: (pattern.nested !== undefined ? pattern.nested : false)
-          };
-       })
-     })
-  }
-};
+        return {
+          id: pattern.id,
+          title: pattern.id,
+          nested: (pattern.nested !== undefined ? pattern.nested : false)
+        };
+    })
+    }))
+    });
+    return promise;
+  };
 
 routes.when('/management/kibana/nested_configuration', {
   template,
-  resolve: fetchPatterns,
+  resolve: {
+    indexPatternList: function(courier) {
+      return fetchPatterns(courier);
+    }
+  },
   // resolve: {
   //   indexPatternList: fetchPatterns
   // },
@@ -52,6 +57,8 @@ routes.when('/management/kibana/nested_configuration', {
     //     };
     //   });
     // }));
+
+    $scope.indexPatternList = $route.current.locals.indexPatternList;
 
     $scope.$watchMulti(['idx.nested'], refreshRows);
 
