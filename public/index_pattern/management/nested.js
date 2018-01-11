@@ -39,9 +39,10 @@ routes.when('/management/kibana/nested_configuration', {
     $scope.$watchMulti(['idx.nested'], refreshRows);
 
     function refreshRows() {
-      $scope.indexPatternList = $route.current.locals.indexPatternIds;
+      // const ids = $route.current.locals.indexPatternIds;
+      // $scope.indexPatternList = [];
       // for (var id in ids) {
-      //   $scope.indexPatternList.push(Promise.resolve(courier.indexPatterns.get(id)));
+      //   $scope.indexPatternList.push(courier.indexPatterns.get(ids[id]));
       // }
     }
 
