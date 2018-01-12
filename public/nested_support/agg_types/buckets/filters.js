@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { luceneStringToDsl } from '../../courier/data_source/build_query/lucene_string_to_dsl.js';
+import { luceneStringToDsl } from 'ui/courier/data_source/build_query/lucene_string_to_dsl';
 import { AggTypesBucketsBucketAggTypeProvider } from 'ui/agg_types/buckets/_bucket_agg_type';
 import { AggTypesBucketsCreateFilterFiltersProvider } from 'ui/agg_types/buckets/create_filter/filters';
 import { DecorateQueryProvider } from 'ui/courier/data_source/_decorate_query';
