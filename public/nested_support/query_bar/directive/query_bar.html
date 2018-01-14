@@ -66,7 +66,7 @@
       </div>
 
       <!-- knql input -->
-      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'knql' || indexPattern.nested">
+      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'knql'">
         <input
                 knql-parse-query
                 ng-model="queryBar.localQuery.query"
@@ -84,9 +84,9 @@
         <div class="kuiLocalSearchAssistedInput__assistance">
           <p class="kuiText">
             <a
-                    id="discoverKuerySyntaxHint"
+                    id="discoverKnqlSyntaxHint"
                     class="kuiLink"
-                    documentation-href="query.kueryQuerySyntax"
+                    documentation-href="https://github.com/ppadovani/KibanaNestedSupportPlugin/blob/master/README.md"
                     target="_blank"
             >
               Uses knql syntax

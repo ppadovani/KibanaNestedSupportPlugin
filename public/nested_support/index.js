@@ -5,5 +5,6 @@ import './parse_query';
 import './courier';
 import './agg_types';
 import './agg_response';
-//import './filter_manager';
+import './query_manager';
+import './filter_manager';
 import './vis';

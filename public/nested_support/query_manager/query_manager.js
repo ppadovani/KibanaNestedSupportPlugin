@@ -34,8 +34,8 @@ queryManager.QueryManagerProvider = function(Private) {
             ? nodeTypes.function.buildNode('exists', value)
             : nodeTypes.function.buildNode('is', fieldName, value);
 
-        return negate ? nodeTypes.function.buildNode('not', newQuery) : newQuery;
-      });
+          return negate ? nodeTypes.function.buildNode('not', newQuery) : newQuery;
+        });
 
         const allQueries = _.isEmpty(state.query.query)
           ? newQueries
@@ -48,7 +48,7 @@ queryManager.QueryManagerProvider = function(Private) {
       }
 
       if (state.query.language === 'knql') {
-
+        filterManager.add(field, values, operation, index);
       }
     }
 
