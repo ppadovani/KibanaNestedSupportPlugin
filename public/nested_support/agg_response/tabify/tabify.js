@@ -15,7 +15,7 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
       doc_count: esResponse.hits.total
     });
 
-    collectBucket(write, undefined, topLevelBucket);
+    collectBucket(write, undefined, topLevelBucket, '', 1);
 
     return write.response();
   }
