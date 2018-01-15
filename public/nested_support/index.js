@@ -1,3 +1,4 @@
+import './routes';
 import './query_bar';
 import './index_patterns';
 import './discover';
