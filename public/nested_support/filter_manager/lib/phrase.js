@@ -11,8 +11,7 @@ phraseLib.buildPhraseFilter = function(field, value, indexPattern) {
     if (indexPattern.fields.byName[field.name].nestedPath) {
       filter.query = { nested : { path : indexPattern.fields.byName[field.name].nestedPath, query : { match : {}}}};
       filter.query.nested.query.match[field.name] = {
-        query: value,
-        type: 'phrase'
+        query: value
       };
     } else {
       filter.query = { match: {} };

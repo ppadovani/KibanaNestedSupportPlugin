@@ -61,7 +61,7 @@ filterMgr.FilterManagerProvider = function(Private) {
           } else {
             if (field.nestedPath !== undefined) {
               filter = { meta: { negate, index }, query: { nested: { path: field.nestedPath, query : { match: {} } } } };
-              filter.query.nested.query.match[fieldName] = { query: value, type: 'phrase' };
+              filter.query.nested.query.match[fieldName] = { query: value };
             } else {
               filter = { meta: { negate, index }, query: { match: {} } };
               filter.query.match[fieldName] = { query: value, type: 'phrase' };

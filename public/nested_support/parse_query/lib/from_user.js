@@ -38,7 +38,7 @@ export function fromUser(text, model) {
 
   // Nope, not an object.
   text = (text || '').trim();
-  if (text.length === 0) return matchAll;
+  if (text.length === 0) text = '*';
 
   if (text[0] === '{') {
     try {
