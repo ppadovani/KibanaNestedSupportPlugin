@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { noWhiteSpace } from './no_white_space';
+import { toJson } from 'src/core_plugins/kibana/common/utils/aggressive_parse';
 import { FieldFormat } from 'src/ui/field_formats/field_format';
 import { createSourceFormat } from 'src/core_plugins/kibana/common/field_formats/types/source';
 import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
@@ -50,7 +51,7 @@ app.run(function(config, Private) {
   }
 
   SourceFormat.prototype._convert = {
-    text: JSON.stringify(),
+    text: (value) => toJson(value),
     html: function sourceToHtml(source, field, hit) {
       if (!field) return this.getConverterFor('text')(source, field, hit);
 
