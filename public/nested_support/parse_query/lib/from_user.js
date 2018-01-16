@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import jison from 'jison';
+import jison from 'jison-gho';
 import {DecorateQueryProvider} from 'ui/courier/data_source/_decorate_query';
 
-let bnf = require('raw!./query_lang.jison');
+let bnf = require('raw-loader!./query_lang.jison');
 let ngModel;
 let parser = new jison.Parser(bnf, {
   type: 'slr',
