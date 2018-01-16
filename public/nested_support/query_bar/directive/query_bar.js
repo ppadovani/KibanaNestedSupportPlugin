@@ -9,6 +9,15 @@ uiModules
 
         let directive = $delegate[0];
         directive.template = noResultsTemplate;
+        directive.link = function Link($scope) {
+          $scope.indexPattern = $scope.$parent.$parent.indexPattern;
+        }
+        // directive.scope.indexPattern = '=?';
+        // const oldController = directive.controller;
+        // directive.controller = function InitAfterBindingsWrapper($injector, $attrs, $element, $scope, $transclude) {
+        //   $scope.indexPattern = $scope.$parent.$parent.indexPattern;
+        //   return oldController($injector, $attrs, $element, $scope, $transclude);
+        // };
         return $delegate;
       });
     } catch (e) {

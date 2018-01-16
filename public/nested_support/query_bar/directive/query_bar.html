@@ -7,7 +7,7 @@
     <div class="kuiLocalSearch">
 
       <!-- Lucene input -->
-      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'lucene'">
+      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'lucene' && !$parent.$parent.indexPattern.nested">
         <input
           parse-query
           input-focus
@@ -37,7 +37,7 @@
       </div>
 
       <!-- kuery input -->
-      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'kuery'">
+      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'kuery' && !$parent.$parent.indexPattern.nested">
         <input
                 ng-model="queryBar.localQuery.query"
                 input-focus
@@ -66,7 +66,7 @@
       </div>
 
       <!-- knql input -->
-      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'knql'">
+      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'knql' || $parent.$parent.indexPattern.nested">
         <input
                 knql-parse-query
                 ng-model="queryBar.localQuery.query"
