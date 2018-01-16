@@ -8,8 +8,8 @@ filterMgr.FilterManagerProvider = function(Private) {
   const queryFilter = Private(FilterBarQueryFilterProvider);
   const filterManager = {};
 
-  filterManager.add = function (field, values, operation, index) {
-    values = _.isArray(values) ? values : [values];
+  filterManager.generate = function (field, values, operation, index) {
+    values = Array.isArray(values) ? values : [values];
     const fieldName = _.isObject(field) ? field.name : field;
     const filters = _.flatten([queryFilter.getAppFilters()]);
     const newFilters = [];
@@ -61,7 +61,7 @@ filterMgr.FilterManagerProvider = function(Private) {
           } else {
             if (field.nestedPath !== undefined) {
               filter = { meta: { negate, index }, query: { nested: { path: field.nestedPath, query : { match: {} } } } };
-              filter.query.nested.query.match[fieldName] = { query: value, type: 'phrase' };
+              filter.query.nested.query.match[fieldName] = { query: value };
             } else {
               filter = { meta: { negate, index }, query: { match: {} } };
               filter.query.match[fieldName] = { query: value, type: 'phrase' };
@@ -74,6 +74,11 @@ filterMgr.FilterManagerProvider = function(Private) {
       newFilters.push(filter);
     });
 
+    return newFilters;
+  };
+
+  filterManager.add = function (field, values, operation, index) {
+    const newFilters = this.generate(field, values, operation, index);
     return queryFilter.addFilters(newFilters);
   };
 

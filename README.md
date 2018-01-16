@@ -50,7 +50,7 @@ This plugin solves the nested issue with the following changes:
 1. Add a management section to enable/disable nested support for a particular indexPattern. This will add the needed 
 nested path data to each nested field and flip a boolean flag on the indexPattern itself.
 
-2. Add a new SQL like query language that is parsed within Kibana and outputs native elasticsearch queries. This 
+2. Add a new SQL like query language: Kibana Nested Query Language (KNQL) that is parsed within Kibana and outputs native elasticsearch queries. This 
 language understands the fields and what fields are nested in order to properly create native queries.
 
 3. Update the Discovery application to use the new query parser if an indexPattern has a nested flag set to true
@@ -74,7 +74,7 @@ Next find the indexPattern from the list, and use the button on the far right to
 nestedPath information into the indexPattern. **
 
 
-## Query Language ## 
+## KNQL - Query Language ## 
 
 I will not go into details about how/what code changes were made to support this effort, instead I wish to focus on documentation and usage examples for the new query DSL.
 

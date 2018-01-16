@@ -11,17 +11,28 @@ import {IndexPatternsGetProvider} from 'ui/index_patterns/_get';
 import {IndexPatternsIntervalsProvider} from 'ui/index_patterns/_intervals';
 import {IndexPatternsFieldListProvider} from 'ui/index_patterns/_field_list';
 import {IndexPatternsFlattenHitProvider} from 'ui/index_patterns/_flatten_hit';
-import {IndexPatternsCalculateIndicesProvider} from 'ui/index_patterns/_calculate_indices';
 import {IndexPatternsPatternCacheProvider} from 'ui/index_patterns/_pattern_cache';
 import {FieldsFetcherProvider} from 'ui/index_patterns/fields_fetcher_provider';
+import { IsUserAwareOfUnsupportedTimePatternProvider } from 'ui/index_patterns/unsupported_time_patterns';
 import {SavedObjectsClientProvider, findObjectByTitle} from 'ui/saved_objects';
 import {nestedFormatHit} from './_format_hit';
 import {IndexPatternsNestedFlattenHitProvider} from './_flatten_hit';
 
 import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 
+export function getRoutes() {
+  return {
+    edit: '/management/kibana/indices/{{id}}',
+    addField: '/management/kibana/indices/{{id}}/create-field',
+    indexedFields: '/management/kibana/indices/{{id}}?_a=(tab:indexedFields)',
+    scriptedFields: '/management/kibana/indices/{{id}}?_a=(tab:scriptedFields)',
+    sourceFilters: '/management/kibana/indices/{{id}}?_a=(tab:sourceFilters)'
+  };
+}
+
 indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, Promise, confirmModalPromise, kbnUrl) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
+  const getConfig = (...args) => config.get(...args);
   const getIds = Private(IndexPatternsGetProvider)('id');
   const fieldsFetcher = Private(FieldsFetcherProvider);
   const intervals = Private(IndexPatternsIntervalsProvider);
@@ -29,30 +40,23 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
   const FieldList = Private(IndexPatternsFieldListProvider);
   const flattenHit = Private(IndexPatternsFlattenHitProvider);
   const nestedFlattenHit = Private(IndexPatternsNestedFlattenHitProvider);
-  const calculateIndices = Private(IndexPatternsCalculateIndicesProvider);
   const patternCache = Private(IndexPatternsPatternCacheProvider);
+  const isUserAwareOfUnsupportedTimePattern = Private(IsUserAwareOfUnsupportedTimePatternProvider);
+  const savedObjectsClient = Private(SavedObjectsClientProvider);
+
   const type = 'index-pattern';
   const notify = new Notifier();
   const configWatchers = new WeakMap();
-  const getRoutes = () => ({
-    edit: '/management/kibana/indices/{{id}}',
-    addField: '/management/kibana/indices/{{id}}/create-field',
-    indexedFields: '/management/kibana/indices/{{id}}?_a=(tab:indexedFields)',
-    scriptedFields: '/management/kibana/indices/{{id}}?_a=(tab:scriptedFields)',
-    sourceFilters: '/management/kibana/indices/{{id}}?_a=(tab:sourceFilters)'
-  });
-  const savedObjectsClient = Private(SavedObjectsClientProvider);
 
   const mapping = mappingSetup.expandShorthand({
-    title: 'string',
-    timeFieldName: 'string',
-    notExpandable: 'boolean',
-    intervalName: 'string',
+    title: 'text',
+    timeFieldName: 'keyword',
+    intervalName: 'keyword',
     nested: 'boolean',
     fields: 'json',
     sourceFilters: 'json',
     fieldFormatMap: {
-      type: 'string',
+      type: 'text',
       _serialize(map = {}) {
         const serialized = _.transform(map, serializeFieldFormatMap);
         return _.isEmpty(serialized) ? undefined : JSON.stringify(serialized);
@@ -71,7 +75,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
   function deserializeFieldFormatMap(mapping) {
     const FieldFormat = fieldformats.byId[mapping.id];
-    return FieldFormat && new FieldFormat(mapping.params);
+    return FieldFormat && new FieldFormat(mapping.params, getConfig);
   }
 
   function updateFromElasticSearch(indexPattern, response) {
@@ -81,7 +85,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       throw new SavedObjectNotFound(
         type,
         indexPattern.id,
-        kbnUrl.eval('#/management/kibana/index?id={{id}}&name=', {id: markdownSaveId})
+        kbnUrl.eval('#/management/kibana/index?id={{id}}&name=', { id: markdownSaveId })
       );
     }
 
@@ -95,11 +99,20 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     // give index pattern all of the values in _source
     _.assign(indexPattern, response._source);
 
-    // older kibana indices reference the index pattern by _id and may not have the pattern
-    // saved in title
-    // if the title doesn't exist, it's an old format and we can use the id instead
     if (!indexPattern.title) {
       indexPattern.title = indexPattern.id;
+    }
+
+    if (indexPattern.isUnsupportedTimePattern()) {
+      if (!isUserAwareOfUnsupportedTimePattern(indexPattern)) {
+        const warning = (
+          'Support for time-intervals has been removed. ' +
+          `View the ["${indexPattern.title}" index pattern in management](` +
+          kbnUrl.getRouteHref(indexPattern, 'edit') +
+          ') for more information.'
+        );
+        notify.warning(warning, { lifetime: Infinity });
+      }
     }
 
     if (!indexPattern.nested) {
@@ -168,7 +181,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
         initFields(indexPattern); // re-init fields when config changes, but only if we already had fields
       }
     });
-    configWatchers.set(indexPattern, {unwatch});
+    configWatchers.set(indexPattern, { unwatch });
   }
 
   function unwatch(indexPattern) {
@@ -194,14 +207,6 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       initFields(indexPattern, all);
     });
   }
-
-  function isFieldStatsError(error) {
-    return (
-      error.statusCode === 400
-      && (error.message || '').includes('_field_stats')
-    );
-  }
-
 
   class IndexPattern {
     constructor(id) {
@@ -349,58 +354,44 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     }
 
     getNonScriptedFields() {
-      return _.where(this.fields, {scripted: false});
+      return _.where(this.fields, { scripted: false });
     }
 
     getScriptedFields() {
-      return _.where(this.fields, {scripted: true});
+      return _.where(this.fields, { scripted: true });
     }
 
     getInterval() {
-      return this.intervalName && _.find(intervals, {name: this.intervalName});
+      return this.intervalName && _.find(intervals, { name: this.intervalName });
     }
 
     toIndexList(start, stop, sortDirection) {
       return this
         .toDetailedIndexList(start, stop, sortDirection)
         .then(detailedIndices => {
-          if (!_.isArray(detailedIndices)) {
+          if (!Array.isArray(detailedIndices)) {
             return detailedIndices.index;
           }
           return _.pluck(detailedIndices, 'index');
         });
     }
 
-    async toDetailedIndexList(start, stop, sortDirection) {
-      if (this.isTimeBasedInterval()) {
-        return await intervals.toIndexList(
-          this.title, this.getInterval(), start, stop, sortDirection
-        );
-      }
-
-      if (this.isTimeBasedWildcard() && this.isIndexExpansionEnabled()) {
-        try {
-          return await calculateIndices(
-            this.title, this.timeFieldName, start, stop, sortDirection
+    toDetailedIndexList(start, stop, sortDirection) {
+      return Promise.resolve().then(() => {
+        if (this.isTimeBasedInterval()) {
+          return intervals.toIndexList(
+            this.title, this.getInterval(), start, stop, sortDirection
           );
-        } catch (error) {
-          if (!isFieldStatsError(error)) {
-            throw error;
+        }
+
+        return [
+          {
+            index: this.title,
+            min: -Infinity,
+            max: Infinity
           }
-        }
-      }
-
-      return [
-        {
-          index: this.title,
-          min: -Infinity,
-          max: Infinity
-        }
-      ];
-    }
-
-    isIndexExpansionEnabled() {
-      return !this.notExpandable;
+        ];
+      });
     }
 
     isTimeBased() {
@@ -409,6 +400,10 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
     isTimeBasedInterval() {
       return this.isTimeBased() && !!this.getInterval();
+    }
+
+    isUnsupportedTimePattern() {
+      return !!this.intervalName;
     }
 
     isTimeBasedWildcard() {
@@ -454,9 +449,9 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
           const confirmMessage =
             `An index pattern with the title '${this.title}' already exists.`;
 
-          return confirmModalPromise(confirmMessage, {confirmButtonText: 'Go to existing pattern'})
+          return confirmModalPromise(confirmMessage, { confirmButtonText: 'Go to existing pattern' })
             .then(() => {
-              kbnUrl.redirect('/management/kibana/indices/{{id}}', {id: duplicate.id});
+              kbnUrl.redirect('/management/kibana/indices/{{id}}', { id: duplicate.id });
               return true;
             }).catch(() => {
               return true;
@@ -470,7 +465,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
         const body = this.prepBody();
 
-        return savedObjectsClient.create(type, body, {id: this.id})
+        return savedObjectsClient.create(type, body, { id: this.id })
           .then(response => setId(this, response.id))
           .catch(err => {
             if (err.statusCode !== 409) {
@@ -496,7 +491,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
 
     save() {
       return savedObjectsClient.update(type, this.id, this.prepBody())
-        .then(({id}) => setId(this, id));
+        .then(({ id }) => setId(this, id));
     }
 
     refreshFields() {
