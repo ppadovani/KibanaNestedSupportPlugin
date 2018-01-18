@@ -63,8 +63,13 @@ routes.when('/management/kibana/nested_configuration', {
           index_pattern.activateNested();
 
           index_pattern.save();
+        })
+        .catch(rej => {
+          pattern.nested = false;
+        })
+        .finally(fin => {
+          pattern.nested = true;
         });
-     }).then(response => {
         pattern.nested = true;
       });
     };
