@@ -95,6 +95,20 @@ function validateValue(mapping, value) {
 
 scope.NOVALUE = {};
 
+scope.Exists = function (fieldName) {
+  let mapping = getMapping(fieldName);
+  this.fieldName = fieldName;
+  this.nestedPath = (mapping ? mapping.nestedPath : undefined);
+};
+
+scope.Exists.prototype = {
+  toJson : function () {
+    return '{"exists":{"field":"' + this.fieldName
+        + '"}}';
+  }
+};
+
+
 scope.Query = function (expression) {
   this.expression = expression;
 };
@@ -122,8 +136,8 @@ scope.Missing = function (fieldName) {
 
 scope.Missing.prototype = {
   toJson : function () {
-    return '{"filtered":{"filter":{"missing":{"field":"' + this.fieldName
-        + '"}}}}';
+    return '{"exists":{"field":"' + this.fieldName
+        + '"}}';
   }
 };
 

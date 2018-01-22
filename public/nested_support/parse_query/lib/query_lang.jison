@@ -293,14 +293,14 @@ unaryExpression
           $$ = expr;
         }
       }
+    | EXISTS fieldPath
+      { $$ = new yy.Exists($2); }
     ;
 
 e
     : boolExpression
     | unaryExpression
     | comparison
-    | fieldPath
-      { $$ = new yy.Term($1, '=', true); }
     | inClause
     | isClause
     | OPAREN e CPAREN
