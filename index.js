@@ -52,7 +52,8 @@ export default function (kibana) {
         path: '/api/nested-fields-support/mappings/{name}',
         method: 'GET',
         handler(req, reply) {
-          callWithInternalUser('indices.getMapping', {
+          const { callWithRequest } = server.plugins.elasticsearch.getCluster('admin');
+          callWithRequest(req, 'indices.getMapping', {
             index: req.params.name
           }).then(function (response) {
             reply(response);
