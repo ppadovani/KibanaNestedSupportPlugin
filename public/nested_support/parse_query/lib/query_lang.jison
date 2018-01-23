@@ -93,7 +93,6 @@
 "ANY"                   return 'ANY'
 "*"                    return 'ANY'
 "IN"                   return 'IN'
-"IS"                   return 'IS'
 "EXISTS"                  return 'EXISTS'
 ("TRUE"|"true")                  return 'TRUE'
 ("FALSE"|"false")                  return 'FALSE'
@@ -138,6 +137,11 @@ booleanValue
 fieldPath
     : FIELD
     | fieldPath DOT FIELD
+      { $$ = $1 + '.' + $3; }
+    ;
+
+fieldPathPattern
+    : fieldPath DOT ANY
       { $$ = $1 + '.' + $3; }
     ;
 
@@ -223,12 +227,7 @@ inClause
         $$ = boolQ;
       }
     ;
-    
-isClause
-    :  fieldPath IS NULL
-      { $$ = new yy.Missing($1); }
-    ;
-    
+
 simpleValue
     : decimal 
     | NUMBER 
@@ -249,6 +248,12 @@ operator
 comparison
     : fieldPath operator simpleValue
        { $$ = new yy.Term($1, $2, $3); }
+    | fieldPathPattern EQ simpleValue
+       { $$ = new yy.MultiMatch($1, $3); }
+    | FIELD ANY EQ simpleValue
+       { $$ = new yy.MultiMatch($1+$2, $4); }
+    | ANY EQ simpleValue
+       { $$ = new yy.MultiMatch($1, $3); }
     ;
 
 boolExpression

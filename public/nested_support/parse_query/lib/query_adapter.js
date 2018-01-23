@@ -141,6 +141,18 @@ scope.Missing.prototype = {
   }
 };
 
+scope.MultiMatch = function (fieldName, value) {
+  this.fieldName = fieldName;
+  this.value = value;
+  this.nestedPath = undefined;
+};
+
+scope.MultiMatch.prototype = {
+  toJson : function () {
+    return '{"multi_match":{"query": ' + this.value + ',"lenient": true,"fields":[\"' + this.fieldName + '\"]}}';
+  }
+};
+
 scope.SetLiteral = function (value) {
   this.set = [ value ];
 };
