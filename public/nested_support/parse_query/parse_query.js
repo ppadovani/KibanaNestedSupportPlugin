@@ -7,6 +7,8 @@ import {uiModules} from 'ui/modules';
 uiModules
   .get('kibana')
   .config(function ($provide) {
+    try {
+
     $provide.decorator('parseQueryDirective', function ($delegate) {
 
       var directive, link;
@@ -40,5 +42,9 @@ uiModules
       return $delegate;
 
     });
+    } catch (e) {
+      // do nothing
+    }
+
   });
 
