@@ -45,6 +45,10 @@ function getMapping(fieldName) {
   return undefined;
 }
 
+scope.validateField = function(fieldName) {
+  getMapping(fieldName);
+}
+
 function validateValue(mapping, value) {
   let temp;
   if (mapping) {
