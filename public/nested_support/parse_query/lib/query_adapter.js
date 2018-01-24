@@ -6,6 +6,7 @@ if (typeof require !== 'undefined') {
 }
 
 scope.fieldDictionary = {};
+scope.possibleFields = undefined;
 
 scope.moment = require('moment');
 scope.errors = require('ui/errors');
@@ -16,9 +17,10 @@ scope._ = require('lodash');
  * @param {String} name - the field name
  */
 export class FieldNotFoundInSelectedIndex extends scope.errors.KbnError {
-  constructor(name) {
+  constructor(name, possibleFields) {
     super('The ' + name + ' field was not found in the currently selected index',
-      FieldNotFoundInSelectedIndex);
+        FieldNotFoundInSelectedIndex);
+    this.possibleFields = possibleFields;
   }
 }
 
@@ -46,7 +48,18 @@ function getMapping(fieldName) {
 }
 
 scope.validateField = function(fieldName) {
-  getMapping(fieldName);
+  let mapping = scope.fieldDictionary.byName[fieldName];
+  if (mapping === undefined) {
+    // find possible fields based on prefix
+    const possibleFields = Object.keys(scope.fieldDictionary.byName).filter(function(field) {
+      if (field.startsWith(fieldName)) {
+        return field;
+      }
+      return undefined;
+    });
+    scope.possibleFields = possibleFields;
+  }
+  return undefined;
 }
 
 function validateValue(mapping, value) {

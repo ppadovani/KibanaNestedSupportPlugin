@@ -136,8 +136,9 @@ booleanValue
     
 fieldPath
     : FIELD
+      { yy.validateField($1); $$ = $1; }
     | fieldPath DOT FIELD
-      { $$ = $1 + '.' + $3; }
+      { yy.validateField($1); $$ = $1 + '.' + $3; }
     ;
 
 fieldPathPattern

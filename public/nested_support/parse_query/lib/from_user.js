@@ -21,6 +21,7 @@ export function fromUser(text, model) {
     return DecorateQueryProvider({query_string: {query: text}});
   }
 
+  parser.yy.possibleFields = undefined;
   let matchAll = getQueryStringQuery('*');
   if (model !== undefined) {
     ngModel = model;
@@ -52,9 +53,11 @@ export function fromUser(text, model) {
         ngModel.filter.base_query = text;
       }
       let parsed = parser.parse(text).toJson();
+      ngModel.$parent.possibleFields = parser.yy.possibleFields;
       ngModel.$parent.parseError = undefined;
       return JSON.parse(parsed);
     } catch (e) {
+      ngModel.$parent.possibleFields = parser.yy.possibleFields;
       ngModel.$parent.parseError = e.message;
       return undefined;
     }
