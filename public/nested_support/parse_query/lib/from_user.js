@@ -26,6 +26,7 @@ export function fromUser(text, model) {
   if (model !== undefined) {
     ngModel = model;
   }
+  const cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
 
   ngModel.parseError = undefined;
   // If we get an empty object, treat it as a *
