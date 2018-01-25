@@ -1,16 +1,17 @@
 import {uiModules} from 'ui/modules';
 
-uiModules
-  .get('apps/discover')
-  .config(function ($provide) {
-    try {
-      $provide.decorator('kbnTypeaheadDirective', function ($delegate) {
+const typeahead = uiModules.get('kibana/typeahead');
 
-        let directive = $delegate[0];
-        
-        return $delegate;
-      });
-    } catch (e) {
-      // do nothing it might not be loaded yet
+typeahead.directive('kbnTypeaheadChild', function () {
+  return {
+    scope: false,
+    require: 'kbnTypeahead',
+    link: function (scope, element, attr, controller) {
+
+      controller.getItems = function() {
+        return $scope.filteredItems;
+      }
     }
-  });
+  }
+});
+
