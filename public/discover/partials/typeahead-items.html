@@ -4,6 +4,7 @@
     ng-mouseleave="typeahead.setMouseover(false);"
     class="typeahead-items"
 >
+    <div ng-show="possibleFields !== undefined"><pre>{{possibleFields}}</pre></div>
     <div ng-show="parseError !== undefined"><pre>{{parseError}}</pre></div>
     <div
         ng-show="typeahead.isVisible()"

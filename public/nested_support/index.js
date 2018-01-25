@@ -1,4 +1,5 @@
 import './routes';
+import './typeahead/typeahead';
 import './query_bar';
 import './index_patterns';
 import './discover';

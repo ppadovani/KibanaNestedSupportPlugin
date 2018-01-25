@@ -21,12 +21,11 @@ export function fromUser(text, model) {
     return DecorateQueryProvider({query_string: {query: text}});
   }
 
-  parser.yy.possibleFields = undefined;
+  parser.yy.possibleFields = {};
   let matchAll = getQueryStringQuery('*');
   if (model !== undefined) {
     ngModel = model;
   }
-  const cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
 
   ngModel.parseError = undefined;
   // If we get an empty object, treat it as a *
@@ -49,16 +48,18 @@ export function fromUser(text, model) {
       return getQueryStringQuery(text);
     }
   } else {
+    const cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
+    const fieldPart = text.substr(text.substr(0, cursorPos).lastIndexOf(' ') + 1)
     try {
       if (ngModel.filter) {
         ngModel.filter.base_query = text;
       }
       let parsed = parser.parse(text).toJson();
-      ngModel.$parent.possibleFields = parser.yy.possibleFields;
+      ngModel.$parent.possibleFields = parser.yy.possibleFields[fieldPart];
       ngModel.$parent.parseError = undefined;
       return JSON.parse(parsed);
     } catch (e) {
-      ngModel.$parent.possibleFields = parser.yy.possibleFields;
+      ngModel.$parent.possibleFields = parser.yy.possibleFields[fieldPart];
       ngModel.$parent.parseError = e.message;
       return undefined;
     }
