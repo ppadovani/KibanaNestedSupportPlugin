@@ -98,7 +98,7 @@ Here is the basic BNF:
 
   * booleanValue : TRUE \| FALSE
 
-  * fieldPath : FIELD \| fieldPath DOT FIELD
+  * fieldPath : FIELD \| fieldPath DOT FIELD | fieldPath DOT ANY | FIELD ANY
 
   * decimal : NUMBER DOT NUMBER
 
@@ -112,7 +112,7 @@ Here is the basic BNF:
 
   * inClause : fieldPath IN rangeLiteral \| fieldPath IN setLiteral
 
-  * isClause : fieldPath IS NULL
+  * EXISTS : EXISTS fieldPath | EXISTS e
 
   * simpleValue : decimal \| NUMBER \| STRING \| NULL \| booleanValue \| IPV4 \| date \| dateTime
 
@@ -131,6 +131,14 @@ NOTE: The ~= operator allows for wildcard queries.: field ~= "test*"
 In a nutshell the above allows one to type a query that looks something like:
 
 `````(a.b=true AND c.d IN {"a","b","c"} AND date>=2015-01-01) OR (d.e=FALSE AND NOT f.g IS NULL)`````
+
+The * character, which represents ANY, can be used in two fundamental ways outside of a wildcard.
+
+1. * by itself in a query with no other characters equates to a match all query.
+2. Using a * in conjunction with a field name equates to a multi_match lenient query. This query allows 
+the user to specify a field like a wildcard and match one value against multiple fields.
+
+```field*="cookie"``` 
 
 So how does the new query language solve our problem?
 
@@ -261,8 +269,16 @@ to enable this functionality.
 
 ## Discover Application Enhancements ##
 
-There are two major enhancements made to the discover application by this plugin: field display priority;
+There are three major enhancements made to the discover application by this plugin: field display priority;
 nested field support.
+
+### Typeahead Support for Fields ###
+
+The existing typeahead support in Kibana has been enhanced to support showing you completions for
+fields that you are typing in the query bar. These suggestions appear at the bottom of the list of
+typeahead suggestions. Additionally, the typeahead area is now limited in height and will support a
+scroll bar. As you use fields from the typeahead list, they will bubble up towards the top of the
+list the more you use them per the existing Kibana functionality.
 
 ### Field Display Priority ###
 
@@ -287,7 +303,7 @@ will not function as expected and is not supported.
 The Discover application does not support nested objects when viewing a result's details. Instead it
 displays a JSON formatted string as shown below:
 
-![Discover Example](kibana-nested/discover-example.png)
+![Discover Example](kibana-nested/discover-settings.png)
 
 In order to address this issue, a new document view has been added called 'Structured'. An example of this
 view is shown below:
