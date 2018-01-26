@@ -138,7 +138,9 @@ fieldPath
     : FIELD
       { yy.validateField($1); $$ = $1; }
     | fieldPath DOT FIELD
-      { yy.validateField($1); $$ = $1 + '.' + $3; }
+      { yy.validateField($1 + '.' + $3); $$ = $1 + '.' + $3; }
+    | fieldPath DOT
+      { yy.validateField($1 + '.'); $$ = $1 + '.'; }
     ;
 
 fieldPathPattern
