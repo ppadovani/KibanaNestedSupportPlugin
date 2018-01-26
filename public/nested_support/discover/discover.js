@@ -6,7 +6,9 @@ import template from './discover.html';
 uiRoutes
     .addSetupWork(function setDiscoverTemplate(Private, Promise, $route) {
       const route = $route.routes['/discover/:id?'];
-      route.template = template;
+      if (route) {
+        route.template = template;
+      }
     })
 
 

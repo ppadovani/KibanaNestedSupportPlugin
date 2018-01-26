@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import jison from 'jison';
+import jison from 'jison-gho';
 import {DecorateQueryProvider} from 'ui/courier/data_source/_decorate_query';
 
-let bnf = require('raw!./query_lang.jison');
+let bnf = require('raw-loader!./query_lang.jison');
 let ngModel;
 let parser = new jison.Parser(bnf, {
   type: 'slr',
@@ -21,6 +21,7 @@ export function fromUser(text, model) {
     return DecorateQueryProvider({query_string: {query: text}});
   }
 
+  parser.yy.possibleFields = {};
   let matchAll = getQueryStringQuery('*');
   if (model !== undefined) {
     ngModel = model;
@@ -47,14 +48,18 @@ export function fromUser(text, model) {
       return getQueryStringQuery(text);
     }
   } else {
+    const cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
+    const fieldPart = text.substr(text.substr(0, cursorPos).lastIndexOf(' ') + 1)
     try {
       if (ngModel.filter) {
         ngModel.filter.base_query = text;
       }
       let parsed = parser.parse(text).toJson();
+      ngModel.$parent.possibleFields = parser.yy.possibleFields[fieldPart];
       ngModel.$parent.parseError = undefined;
       return JSON.parse(parsed);
     } catch (e) {
+      ngModel.$parent.possibleFields = parser.yy.possibleFields[fieldPart];
       ngModel.$parent.parseError = e.message;
       return undefined;
     }

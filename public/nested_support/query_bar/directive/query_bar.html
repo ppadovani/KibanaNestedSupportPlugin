@@ -3,7 +3,7 @@
   name="queryBarForm"
   ng-submit="queryBar.submit()"
 >
-  <div class="typeahead" kbn-typeahead="{{queryBar.typeaheadKey()}}" on-select="queryBar.submit()" role="search">
+  <div class="typeahead" kbn-typeahead="{{queryBar.typeaheadKey()}}" kbn-typeahead-child on-select="queryBar.submit()" role="search">
     <div class="kuiLocalSearch">
 
       <!-- Lucene input -->

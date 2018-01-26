@@ -6,6 +6,7 @@ if (typeof require !== 'undefined') {
 }
 
 scope.fieldDictionary = {};
+scope.possibleFields = {};
 
 scope.moment = require('moment');
 scope.errors = require('ui/errors');
@@ -18,7 +19,7 @@ scope._ = require('lodash');
 export class FieldNotFoundInSelectedIndex extends scope.errors.KbnError {
   constructor(name) {
     super('The ' + name + ' field was not found in the currently selected index',
-      FieldNotFoundInSelectedIndex);
+        FieldNotFoundInSelectedIndex);
   }
 }
 
@@ -41,6 +42,33 @@ function getMapping(fieldName) {
       throw new FieldNotFoundInSelectedIndex(fieldName);
     }
     return mapping;
+  }
+  return undefined;
+}
+
+scope.validateField = function(fieldName) {
+  let mapping = scope.fieldDictionary.byName[fieldName];
+
+  if (scope.possibleFields !== undefined) {
+    const existingField = Object.keys(scope.possibleFields).filter(function(field) {
+      if (fieldName.startsWith(field + '.')) {
+        return field;
+      }
+    });
+
+    if (existingField !== undefined && existingField.length > 0) {
+      scope.possibleFields[existingField[0]] = undefined;
+    }
+  }
+
+  if (mapping === undefined) {
+    // find possible fields based on prefix
+    scope.possibleFields[fieldName] = Object.keys(scope.fieldDictionary.byName).filter(function(field) {
+      if (field.startsWith(fieldName)) {
+        return field;
+      }
+      return undefined;
+    });
   }
   return undefined;
 }
@@ -95,6 +123,20 @@ function validateValue(mapping, value) {
 
 scope.NOVALUE = {};
 
+scope.Exists = function (fieldName) {
+  let mapping = getMapping(fieldName);
+  this.fieldName = fieldName;
+  this.nestedPath = (mapping ? mapping.nestedPath : undefined);
+};
+
+scope.Exists.prototype = {
+  toJson : function () {
+    return '{"exists":{"field":"' + this.fieldName
+        + '"}}';
+  }
+};
+
+
 scope.Query = function (expression) {
   this.expression = expression;
 };
@@ -122,8 +164,20 @@ scope.Missing = function (fieldName) {
 
 scope.Missing.prototype = {
   toJson : function () {
-    return '{"filtered":{"filter":{"missing":{"field":"' + this.fieldName
-        + '"}}}}';
+    return '{"exists":{"field":"' + this.fieldName
+        + '"}}';
+  }
+};
+
+scope.MultiMatch = function (fieldName, value) {
+  this.fieldName = fieldName;
+  this.value = value;
+  this.nestedPath = undefined;
+};
+
+scope.MultiMatch.prototype = {
+  toJson : function () {
+    return '{"multi_match":{"query": ' + this.value + ',"lenient": true,"fields":[\"' + this.fieldName + '\"]}}';
   }
 };
 
