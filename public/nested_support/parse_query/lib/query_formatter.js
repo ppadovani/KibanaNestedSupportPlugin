@@ -32,9 +32,21 @@ define(function () {
       return fromFiltered(query.filtered);
     } else if (query.filter) {
       return fromQuery(query.filter);
+    } else if (query.multi_match) {
+      return fromMultiMatch(query.multi_match);
+    } else if (query.exists) {
+      return fromExists(query.exists);
     }
 
     throw 'Unable to reverse parse';
+  }
+
+  function fromExists(exists) {
+    return 'EXISTS ' + exists.field;
+  }
+
+  function fromMultiMatch(multiMatch) {
+    return multiMatch.fields[0] + ' = ' + '\"' + multiMatch.query + '\"';
   }
 
   function fromFiltered(filtered) {

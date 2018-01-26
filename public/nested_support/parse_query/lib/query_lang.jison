@@ -93,7 +93,6 @@
 "ANY"                   return 'ANY'
 "*"                    return 'ANY'
 "IN"                   return 'IN'
-"IS"                   return 'IS'
 "EXISTS"                  return 'EXISTS'
 ("TRUE"|"true")                  return 'TRUE'
 ("FALSE"|"false")                  return 'FALSE'
@@ -137,7 +136,15 @@ booleanValue
     
 fieldPath
     : FIELD
+      { yy.validateField($1); $$ = $1; }
     | fieldPath DOT FIELD
+      { yy.validateField($1 + '.' + $3); $$ = $1 + '.' + $3; }
+    | fieldPath DOT
+      { yy.validateField($1 + '.'); $$ = $1 + '.'; }
+    ;
+
+fieldPathPattern
+    : fieldPath DOT ANY
       { $$ = $1 + '.' + $3; }
     ;
 
@@ -223,12 +230,7 @@ inClause
         $$ = boolQ;
       }
     ;
-    
-isClause
-    :  fieldPath IS NULL
-      { $$ = new yy.Missing($1); }
-    ;
-    
+
 simpleValue
     : decimal 
     | NUMBER 
@@ -249,6 +251,12 @@ operator
 comparison
     : fieldPath operator simpleValue
        { $$ = new yy.Term($1, $2, $3); }
+    | fieldPathPattern EQ simpleValue
+       { $$ = new yy.MultiMatch($1, $3); }
+    | FIELD ANY EQ simpleValue
+       { $$ = new yy.MultiMatch($1+$2, $4); }
+    | ANY EQ simpleValue
+       { $$ = new yy.MultiMatch($1, $3); }
     ;
 
 boolExpression
@@ -293,14 +301,14 @@ unaryExpression
           $$ = expr;
         }
       }
+    | EXISTS fieldPath
+      { $$ = new yy.Exists($2); }
     ;
 
 e
     : boolExpression
     | unaryExpression
     | comparison
-    | fieldPath
-      { $$ = new yy.Term($1, '=', true); }
     | inClause
     | isClause
     | OPAREN e CPAREN
