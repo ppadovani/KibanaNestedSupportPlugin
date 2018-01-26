@@ -269,8 +269,16 @@ to enable this functionality.
 
 ## Discover Application Enhancements ##
 
-There are two major enhancements made to the discover application by this plugin: field display priority;
+There are three major enhancements made to the discover application by this plugin: field display priority;
 nested field support.
+
+### Typeahead Support for Fields ###
+
+The existing typeahead support in Kibana has been enhanced to support showing you completions for
+fields that you are typing in the query bar. These suggestions appear at the bottom of the list of
+typeahead suggestions. Additionally, the typeahead area is now limited in height and will support a
+scroll bar. As you use fields from the typeahead list, they will bubble up towards the top of the
+list the more you use them per the existing Kibana functionality.
 
 ### Field Display Priority ###
 
