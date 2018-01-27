@@ -3,13 +3,20 @@ import 'ui/doc_table/doc_table.less';
 import 'ui/styles/table.less';
 import {uiModules} from 'ui/modules';
 import template from './sample_result.html';
-import { noWhiteSpace } from 'src/core_plugins/kibana/common/utils/no_white_space';
+import { SearchSourceProvider } from 'ui/courier/data_source/search_source';
 
 const MIN_LINE_LENGTH = 20;
 
+const TAGS_WITH_WS = />\s+</g;
+
+function noWhiteSpace(html) {
+  return html.replace(TAGS_WITH_WS, '><');
+}
 
 uiModules.get('apps/management', ['kibana/courier'])
   .directive('discoverResultsConfigurationSampleResult', function (Private, courier) {
+
+    const SearchSource = Private(SearchSourceProvider);
 
     const cellTemplate = _.template(noWhiteSpace(require('ui/doc_table/components/table_row/cell.html')));
     const truncateByHeightTemplate = _.template(noWhiteSpace(require('ui/partials/truncate_by_height.html')));
@@ -62,10 +69,11 @@ uiModules.get('apps/management', ['kibana/courier'])
           }
         }
 
+
         function refreshSample() {
           if ($scope.$parent.refreshSample === undefined || $scope.$parent.refreshSample) {
 
-            performQuery(courier.createSource('search').set('index', $scope.indexPattern).set('size', 1)
+            performQuery(new SearchSource().set('index', $scope.indexPattern).set('size', 1)
               .query()).then(response => {
                 $scope.sampleHit = response[0];
               reformatSample();
