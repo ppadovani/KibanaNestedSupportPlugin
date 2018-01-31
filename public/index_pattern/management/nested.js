@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import 'plugins/nested-fields-support/index_pattern/management/less/main.less';
 import { SavedObjectsClientProvider } from 'ui/saved_objects';
-
+import chrome from 'ui/chrome';
 import routes from 'ui/routes';
 import 'ui/paginated_table';
 import { uiModules } from 'ui/modules';
@@ -9,7 +9,7 @@ import template from 'plugins/nested-fields-support/index_pattern/management/nes
 
 routes.when('/management/kibana/nested_configuration', {
   template,
-  controller($scope, $route, $window, courier, Private) {
+  controller($scope, $route, courier, Private) {
     const savedObjectsClient = Private(SavedObjectsClientProvider);
 
     $scope.indexPatternList = $route.current.locals.indexPatterns.map(pattern => {
@@ -42,7 +42,7 @@ routes.when('/management/kibana/nested_configuration', {
 
     $scope.activateIndex = function (pattern) {
       courier.indexPatterns.get(pattern.id).then(index_pattern => {
-        savedObjectsClient._$http.get('../api/nested-fields-support/mappings/' + index_pattern.title).then(response => {
+        savedObjectsClient._$http.get(chrome.addBasePath('/api/nested-fields-support/mappings/' + index_pattern.title)).then(response => {
           let hierarchyPaths = {};
           _.each(response.data, function (index, indexName) {
             if (indexName === '.kibana') return;
