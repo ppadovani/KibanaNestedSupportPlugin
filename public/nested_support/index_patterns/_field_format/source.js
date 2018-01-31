@@ -1,8 +1,5 @@
 import _ from 'lodash';
 import { noWhiteSpace } from './no_white_space';
-import { toJson } from 'src/core_plugins/kibana/common/utils/aggressive_parse';
-import { FieldFormat } from 'src/ui/field_formats/field_format';
-import { createSourceFormat } from 'src/core_plugins/kibana/common/field_formats/types/source';
 import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
 import { uiModules } from 'ui/modules';
 import nestedSrcTmpl from './_nested_source.html';
@@ -20,10 +17,16 @@ let app = uiModules.get('kibana/courier');
 const nestedTemplate = _.template(noWhiteSpace(nestedSrcTmpl));
 const template = _.template(noWhiteSpace(templateHtml));
 
+export function replacer(key, value) {
+  return isString(key) && startsWith(key, '$') ? undefined : value;
+}
+
 app.run(function(config, Private) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
 
   const SourceFormat = fieldformats.getType("_source");
+
+  const origConvert = SourceFormat.prototype._convert;
 
   if (SourceFormat) {
     function genNested(sortedFields, highlights, formattedValue) {
@@ -52,7 +55,7 @@ app.run(function(config, Private) {
     }
 
     SourceFormat.prototype._convert = {
-      text: (value) => toJson(value),
+      text: (value) => JSON.stringify(value, replacer),
       html: function sourceToHtml(source, field, hit) {
         if (!field) return this.getConverterFor('text')(source, field, hit);
 
