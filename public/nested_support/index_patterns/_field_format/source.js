@@ -25,9 +25,7 @@ app.run(function(config, Private) {
   const fieldformats = Private(RegistryFieldFormatsProvider);
 
   const SourceFormat = fieldformats.getType("_source");
-
-  const origConvert = SourceFormat.prototype._convert;
-
+  
   if (SourceFormat) {
     function genNested(sortedFields, highlights, formattedValue) {
       let nestedObj = '';

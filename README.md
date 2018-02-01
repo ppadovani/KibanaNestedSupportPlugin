@@ -303,7 +303,7 @@ will not function as expected and is not supported.
 The Discover application does not support nested objects when viewing a result's details. Instead it
 displays a JSON formatted string as shown below:
 
-![Discover Example](kibana-nested/discover-settings.png)
+![Discover Example](kibana-nested/discover-example.png)
 
 In order to address this issue, a new document view has been added called 'Structured'. An example of this
 view is shown below:
