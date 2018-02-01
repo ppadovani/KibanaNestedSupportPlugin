@@ -1,6 +1,6 @@
 {
   "name": "nested-fields-support",
-  "version": "6.1.2-1.0.2",
+  "version": "6.1.2-1.0.3",
   "description": "Nested Support Plugin",
   "main": "index.js",
   "kibana": {
