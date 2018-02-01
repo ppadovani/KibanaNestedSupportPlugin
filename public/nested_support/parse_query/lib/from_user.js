@@ -1,15 +1,9 @@
 import _ from 'lodash';
-import jison from 'jison-gho';
 import {DecorateQueryProvider} from 'ui/courier/data_source/_decorate_query';
+import {parser} from './knql';
 
-let bnf = require('raw-loader!./query_lang.jison');
 let ngModel;
-let parser = new jison.Parser(bnf, {
-  type: 'slr',
-  noDefaultResolve: true,
-  moduleType: 'js'
-});
-parser.yy = require('./query_adapter');
+parser.yy = require('./knql_adapter');
 
 /**
  * Take text from the user and make it into a query object

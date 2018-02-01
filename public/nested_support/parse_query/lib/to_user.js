@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import queryFormatter from './query_formatter';
+import queryFormatter from './knql_formatter';
 
 
 /**
