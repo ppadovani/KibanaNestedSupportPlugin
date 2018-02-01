@@ -1,3 +1,5 @@
+See [KNQL Plugin](https://ppadovani.github.io/knql_plugin/overview/) for official documentation etc.
+
 # nested-fields-support
 
 This plugin adds support for nested fields to Kibana. This is based off of the 
