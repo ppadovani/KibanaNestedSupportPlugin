@@ -8,6 +8,8 @@ request block and provide responses for all of the below items.
 
 **Kibana version**:
 
+**Plugins installed**:
+
 **Description of the problem including expected versus actual behavior**:
 
 **Steps to reproduce**:
@@ -18,6 +20,8 @@ request block and provide responses for all of the below items.
 **Errors in browser console (if relevant)**:
 
 **Provide logs and/or server output (if relevant)**:
+
+**If using docker, include your docker file**:
 
 <!--
 If you are filing a feature request, please remove the above bug
