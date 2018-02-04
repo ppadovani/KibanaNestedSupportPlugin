@@ -1,10 +1,18 @@
 {
   "name": "nested-fields-support",
-  "version": "6.1.2-1.0.3",
+  "version": "6.1.3-1.0.0",
   "description": "Nested Support Plugin",
+  "license": "Apache-2.0",
+  "authors": [
+    "Pierre Padovani <pierre@padovani.org>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ppadovani/KibanaNestedSupportPlugin"
+  },
   "main": "index.js",
   "kibana": {
-    "version": "6.1.2",
+    "version": "6.1.3",
     "templateVersion": "7.2.4"
   },
   "scripts": {
