@@ -2,18 +2,15 @@ import _ from 'lodash';
 
 import 'ui/promises';
 
-import { RequestQueueProvider } from 'ui/courier/_request_queue';
-import { ErrorHandlersProvider } from 'ui/courier/_error_handlers';
-import { FetchProvider } from 'ui/courier/fetch';
+import { requestQueue } from 'ui/courier/_request_queue';
+import { FetchSoonProvider } from 'ui/courier/fetch';
 import { FieldWildcardProvider } from 'ui/field_wildcard';
 import { getHighlightRequest } from 'src/core_plugins/kibana/common/highlight/highlight';
 import { BuildESQueryProvider } from 'ui/courier/build_query';
 import * as abstract from 'ui/courier/data_source/_abstract';
 
 abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter) {
-  const requestQueue = Private(RequestQueueProvider);
-  const errorHandlers = Private(ErrorHandlersProvider);
-  const courierFetch = Private(FetchProvider);
+  const fetchSoon = Private(FetchSoonProvider);
   const buildESQuery = Private(BuildESQueryProvider);
   const { fieldWildcardFilter } = Private(FieldWildcardProvider);
   const getConfig = (...args) => config.get(...args);
@@ -49,7 +46,6 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
     });
 
     self.history = [];
-    self._fetchStrategy = strategy;
     self._requestStartHandlers = [];
   }
 
@@ -137,7 +133,13 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
       const defer = Promise.defer();
       defer.promise.then(resolve, reject);
 
-      self._createRequest(defer);
+      const request = self._createRequest(defer);
+
+      request.setErrorHandler((request, error) => {
+        reject(error);
+        request.abort();
+      });
+
     }, handler);
   };
 
@@ -146,26 +148,6 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
    */
   SourceAbstract.prototype.getParent = function () {
     return this._parent;
-  };
-
-  /**
-   * similar to onResults, but allows a seperate loopy code path
-   * for error handling.
-   *
-   * @return {Promise}
-   */
-  SourceAbstract.prototype.onError = function (handler) {
-    const self = this;
-
-    return new PromiseEmitter(function (resolve, reject) {
-      const defer = Promise.defer();
-      defer.promise.then(resolve, reject);
-
-      errorHandlers.push({
-        source: self,
-        defer: defer
-      });
-    }, handler);
   };
 
   /**
@@ -185,7 +167,7 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
       req = self._createRequest();
     }
 
-    courierFetch.these([req]);
+    fetchSoon.these([req]);
 
     return req.getCompletePromise();
   };
@@ -210,7 +192,7 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
       request.abort();
     });
 
-    courierFetch.these([req]);
+    fetchSoon.these([req]);
 
     return req.getCompletePromise();
   };
@@ -220,7 +202,7 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
    * @async
    */
   SourceAbstract.prototype.fetchQueued = function () {
-    return courierFetch.these(this._myStartableQueued());
+    return fetchSoon.these(this._myStartableQueued());
   };
 
   /**
@@ -229,9 +211,8 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
    */
   SourceAbstract.prototype.cancelQueued = function () {
     requestQueue
-    .get(this._fetchStrategy)
-    .filter(req => req.source === this)
-    .forEach(req => req.abort());
+      .filter(req => req.source === this)
+      .forEach(req => req.abort());
   };
 
   /**
@@ -281,8 +262,8 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
 
   SourceAbstract.prototype._myStartableQueued = function () {
     return requestQueue
-    .getStartable(this._fetchStrategy)
-    .filter(req => req.source === this);
+      .getStartable()
+      .filter(req => req.source === this);
   };
 
   SourceAbstract.prototype._createRequest = function () {
@@ -322,167 +303,94 @@ abstract.AbstractDataSourceProvider = function(Private, Promise, PromiseEmitter)
         const prom = root._mergeProp(flatState, value, key);
         return Promise.is(prom) ? prom : null;
       }))
-      .then(function () {
+        .then(function () {
         // move to this sources parent
-        const parent = current.getParent();
-        // keep calling until we reach the top parent
-        if (parent) {
-          current = parent;
-          return ittr();
-        }
-      });
+          const parent = current.getParent();
+          // keep calling until we reach the top parent
+          if (parent) {
+            current = parent;
+            return ittr();
+          }
+        });
     }())
-    .then(function () {
-      if (type === 'search') {
+      .then(function () {
+        if (type === 'search') {
         // This is down here to prevent the circular dependency
-        flatState.body = flatState.body || {};
+          flatState.body = flatState.body || {};
 
-        const computedFields = flatState.index.getComputedFields();
-        flatState.body.stored_fields = computedFields.storedFields;
-        flatState.body.script_fields = flatState.body.script_fields || {};
-        flatState.body.docvalue_fields = flatState.body.docvalue_fields || [];
+          const computedFields = flatState.index.getComputedFields();
+          flatState.body.stored_fields = computedFields.storedFields;
+          flatState.body.script_fields = flatState.body.script_fields || {};
+          flatState.body.docvalue_fields = flatState.body.docvalue_fields || [];
 
-        _.extend(flatState.body.script_fields, computedFields.scriptFields);
-        flatState.body.docvalue_fields = _.union(flatState.body.docvalue_fields, computedFields.docvalueFields);
+          _.extend(flatState.body.script_fields, computedFields.scriptFields);
+          flatState.body.docvalue_fields = _.union(flatState.body.docvalue_fields, computedFields.docvalueFields);
 
-        if (flatState.body._source) {
+          if (flatState.body._source) {
           // exclude source fields for this index pattern specified by the user
-          const filter = fieldWildcardFilter(flatState.body._source.excludes);
-          flatState.body.docvalue_fields = flatState.body.docvalue_fields.filter(filter);
-        }
+            const filter = fieldWildcardFilter(flatState.body._source.excludes);
+            flatState.body.docvalue_fields = flatState.body.docvalue_fields.filter(filter);
+          }
 
-        // if we only want to search for certain fields
-        const fields = flatState.fields;
-        if (fields) {
+          // if we only want to search for certain fields
+          const fields = flatState.fields;
+          if (fields) {
           // filter out the docvalue_fields, and script_fields to only include those that we are concerned with
-          flatState.body.docvalue_fields = _.intersection(flatState.body.docvalue_fields, fields);
-          flatState.body.script_fields = _.pick(flatState.body.script_fields, fields);
+            flatState.body.docvalue_fields = _.intersection(flatState.body.docvalue_fields, fields);
+            flatState.body.script_fields = _.pick(flatState.body.script_fields, fields);
 
-          // request the remaining fields from both stored_fields and _source
-          const remainingFields = _.difference(fields, _.keys(flatState.body.script_fields));
-          flatState.body.stored_fields = remainingFields;
-          _.set(flatState.body, '_source.includes', remainingFields);
-        }
-
-        flatState.body.query = buildESQuery(flatState.index, flatState.query, flatState.filters);
-
-        if (flatState.highlightAll != null) {
-          if (flatState.highlightAll && flatState.body.query) {
-            flatState.body.highlight = getHighlightRequest(flatState.body.query, getConfig);
-          }
-          delete flatState.highlightAll;
-        }
-
-        /**
-         * Translate a filter into a query to support es 3+
-         * @param  {Object} filter - The filter to translate
-         * @return {Object} the query version of that filter
-         */
-        const translateToQuery = function (filter) {
-          if (!filter) return;
-
-          if (filter.query) {
-            return filter.query;
+            // request the remaining fields from both stored_fields and _source
+            const remainingFields = _.difference(fields, _.keys(flatState.body.script_fields));
+            flatState.body.stored_fields = remainingFields;
+            _.set(flatState.body, '_source.includes', remainingFields);
           }
 
-          return filter;
-        };
-
-          /**
-           * Clean out any invalid attributes from the filters
-           * @param {object} filter The filter to clean
-           * @returns {object}
-           */
-          const cleanFilter = function (filter) {
-            return _.omit(filter, ['meta']);
-          };
-
-          // switch to filtered query if there are filters
-          if (flatState.filters) {
-            if (flatState.filters.length) {
-              _.each(flatState.filters, function (filter) {
-                if (filter.query) {
-                  decorateQuery(filter.query);
-                }
-              });
-
-              if (!flatState.index.nestedPath) {
-                flatState.body.query = {
-                  bool: {
-                    must: (
-                      [flatState.body.query].concat(
-                        (flatState.filters || [])
-                          .filter(filterNegate(false))
-                          .map(translateToQuery)
-                          .map(cleanFilter)
-                      )
-                    ),
-                    must_not: (
-                      (flatState.filters || [])
-                        .filter(filterNegate(true))
-                        .map(translateToQuery)
-                        .map(cleanFilter)
-                    )
-                  }
-                };
-              } else {
-                flatState.body.query = {
-                  nested: {
-                    path: flatState.index.nestedPath,
-                    query: {
-                      bool: {
-                        must: (
-                          [flatState.body.query].concat(
-                            (flatState.filters || [])
-                              .filter(filterNegate(false))
-                              .map(translateToQuery)
-                              .map(cleanFilter)
-                          )
-                        ),
-                        must_not: (
-                          (flatState.filters || [])
-                            .filter(filterNegate(true))
-                            .map(translateToQuery)
-                            .map(cleanFilter)
-                        )
-                      }
-                    }
-                  }
-                };
-              }
-            }
-            delete flatState.filters;
-          }
+          flatState.body.query = buildESQuery(flatState.index, flatState.query, flatState.filters);
 
           if (flatState.highlightAll != null) {
             if (flatState.highlightAll && flatState.body.query) {
-              flatState.body.highlight = getHighlight(flatState.body.query);
+              flatState.body.highlight = getHighlightRequest(flatState.body.query, getConfig);
             }
             delete flatState.highlightAll;
           }
 
-        // re-write filters within filter aggregations
-        (function recurse(aggBranch) {
-          if (!aggBranch) return;
-          Object.keys(aggBranch).forEach(function (id) {
-            const agg = aggBranch[id];
+          /**
+         * Translate a filter into a query to support es 3+
+         * @param  {Object} filter - The filter to translate
+         * @return {Object} the query version of that filter
+         */
+          const translateToQuery = function (filter) {
+            if (!filter) return;
 
-            if (agg.filters) {
-              // translate filters aggregations
-              const filters = agg.filters.filters;
-
-              Object.keys(filters).forEach(function (filterId) {
-                filters[filterId] = translateToQuery(filters[filterId]);
-              });
+            if (filter.query) {
+              return filter.query;
             }
 
-            recurse(agg.aggs || agg.aggregations);
-          });
-        }(flatState.body.aggs || flatState.body.aggregations));
-      }
+            return filter;
+          };
 
-      return flatState;
-    });
+          // re-write filters within filter aggregations
+          (function recurse(aggBranch) {
+            if (!aggBranch) return;
+            Object.keys(aggBranch).forEach(function (id) {
+              const agg = aggBranch[id];
+
+              if (agg.filters) {
+              // translate filters aggregations
+                const filters = agg.filters.filters;
+
+                Object.keys(filters).forEach(function (filterId) {
+                  filters[filterId] = translateToQuery(filters[filterId]);
+                });
+              }
+
+              recurse(agg.aggs || agg.aggregations);
+            });
+          }(flatState.body.aggs || flatState.body.aggregations));
+        }
+
+        return flatState;
+      });
   };
 
   return SourceAbstract;

@@ -1,1 +1,1 @@
-import './query_manager';
+//import './query_manager';

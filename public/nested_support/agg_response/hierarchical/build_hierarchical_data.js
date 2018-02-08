@@ -78,7 +78,7 @@ buildHData.BuildHierarchicalDataProvider = function (Private, Notifier) {
       if (!_.isEmpty(displayName)) split.label += ': ' + displayName;
 
       split.tooltipFormatter = tooltipFormatter(raw.columns);
-      const aggConfigResult = new AggConfigResult(firstAgg, null, null, firstAgg.getKey(bucket));
+      const aggConfigResult = new AggConfigResult(firstAgg, null, null, firstAgg.getKey(bucket), bucket.filters);
       split.split = { aggConfig: firstAgg, aggConfigResult: aggConfigResult, key: bucket.key };
       _.each(split.slices.children, function (child) {
         child.aggConfigResult.$parent = aggConfigResult;

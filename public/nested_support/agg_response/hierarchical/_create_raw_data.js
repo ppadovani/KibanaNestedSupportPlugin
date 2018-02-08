@@ -3,7 +3,7 @@ import { createRawData } from 'ui/agg_response/hierarchical/_create_raw_data';
 
 createRawData.walkBuckets = function (agg, data, record) {
   if (!data) return;
-  if (!_.isArray(record)) {
+  if (!Array.isArray(record)) {
     record = [];
   }
 

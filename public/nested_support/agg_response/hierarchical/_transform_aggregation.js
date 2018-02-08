@@ -9,7 +9,8 @@ transformAggregation.HierarchicalTransformAggregationProvider = function () {
         agg,
         parent && parent.aggConfigResult,
         metric.getValue(agg.id, bucket),
-        agg.getKey(bucket)
+        agg.getKey(bucket),
+        bucket.filters
       );
 
       const branch = {
