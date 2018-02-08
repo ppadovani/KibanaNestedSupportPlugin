@@ -1,4 +1,6 @@
-See [KNQL Plugin](https://ppadovani.github.io/knql_plugin/overview/) for official documentation etc.
+See [KNQL Plugin](https://ppadovani.github.io/knql_plugin/overview/) for official documentation, installation instructions etc.
+
+Open any issues here that you might have with the plugin, as well as requests for new versions.
 
 ---
 
