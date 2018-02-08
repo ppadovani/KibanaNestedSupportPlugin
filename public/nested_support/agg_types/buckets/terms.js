@@ -6,6 +6,7 @@ import { AggTypesBucketsCreateFilterTermsProvider } from 'ui/agg_types/buckets/c
 import orderAggTemplate from 'ui/agg_types/controls/order_agg.html';
 import orderAndSizeTemplate from 'ui/agg_types/controls/order_and_size.html';
 import { RouteBasedNotifierProvider } from 'ui/route_based_notifier';
+import { OtherBucketHelperProvider } from 'ui/agg_types/buckets/_terms_other_bucket_helper';
 
 import * as Terms from 'ui/agg_types/buckets/terms';
 
@@ -15,6 +16,7 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
   const Schemas = Private(VisSchemasProvider);
   const createFilter = Private(AggTypesBucketsCreateFilterTermsProvider);
   const routeBasedNotifier = Private(RouteBasedNotifierProvider);
+  const { buildOtherBucketAgg, mergeOtherBucketAggResponse, updateMissingBucket } = Private(OtherBucketHelperProvider);
 
   const aggFilter = [
     '!top_hits', '!percentiles', '!median', '!std_dev',
@@ -62,10 +64,39 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
       return agg.getFieldDisplayName() + ': ' + params.order.display;
     },
     createFilter: createFilter,
+    postFlightRequest: async (resp, aggConfigs, aggConfig, nestedSearchSource) => {
+      if (aggConfig.params.otherBucket) {
+        const filterAgg = buildOtherBucketAgg(aggConfigs, aggConfig, resp);
+        nestedSearchSource.set('aggs', filterAgg);
+        const response = await nestedSearchSource.fetchAsRejectablePromise();
+        resp = mergeOtherBucketAggResponse(aggConfigs, resp, response, aggConfig, filterAgg());
+      }
+      if (aggConfig.params.missingBucket) {
+        resp = updateMissingBucket(resp, aggConfigs, aggConfig);
+      }
+      return resp;
+    },
     params: [
       {
         name: 'field',
         filterFieldTypes: ['number', 'boolean', 'date', 'ip',  'string']
+      },
+      {
+        name: 'otherBucket',
+        default: false,
+        write: _.noop
+      }, {
+        name: 'otherBucketLabel',
+        default: 'Other',
+        write: _.noop
+      }, {
+        name: 'missingBucket',
+        default: false,
+        write: _.noop
+      }, {
+        name: 'missingBucketLabel',
+        default: 'Missing',
+        write: _.noop
       },
       {
         name: 'exclude',
@@ -171,6 +202,10 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
           // be able to contain the number on the elasticsearch side
           if (output.params.script) {
             output.params.valueType = agg.getField().type === 'number' ? 'float' : agg.getField().type;
+          }
+
+          if (agg.params.missingBucket) {
+            output.params.missing = '__missing__';
           }
 
           if (!orderAgg) {

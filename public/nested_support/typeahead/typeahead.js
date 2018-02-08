@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import {uiModules} from 'ui/modules';
-import { comboBoxKeyCodes } from 'ui_framework/services';
+import { comboBoxKeyCodes } from '@elastic/eui';
 
 const typeahead = uiModules.get('kibana/typeahead');
 
