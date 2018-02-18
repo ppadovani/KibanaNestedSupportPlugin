@@ -33,7 +33,7 @@ export default function (kibana) {
       const {callWithInternalUser} = server.plugins.elasticsearch.getCluster('admin');
 
       callWithInternalUser('indices.putMapping', {
-        index: ".kibana",
+        index: server.config().get('kibana.index'),
         type: "doc",
         body: {
           properties: {
