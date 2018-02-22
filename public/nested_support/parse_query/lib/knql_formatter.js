@@ -36,9 +36,25 @@ define(function () {
       return fromMultiMatch(query.multi_match);
     } else if (query.exists) {
       return fromExists(query.exists);
+    } else if (query.wildcard) {
+      return fromWildcard(query.wildcard);
+    } else if (query.match_phrase) {
+      return fromMatchPhrase(query.match_phrase);
     }
 
     throw 'Unable to reverse parse';
+  }
+
+  function fromWildcard(wildcard) {
+    const keyNames = Object.keys(wildcard);
+    const value = valueToString(keyNames[0], wildcard[keyNames[0]]);
+    return keyNames[0] + '~=' + value;
+  }
+
+  function fromMatchPhrase(match_phrase) {
+    const keyNames = Object.keys(match_phrase);
+    const value = valueToString(keyNames[0], match_phrase[keyNames[0]]);
+    return keyNames[0] + '~=' + value;
   }
 
   function fromExists(exists) {
