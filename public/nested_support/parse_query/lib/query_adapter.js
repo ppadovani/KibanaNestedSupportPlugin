@@ -199,6 +199,12 @@ scope.Term.prototype = {
         break;
       case '~=':
         jsonString += '{"wildcard":{"' + this.field + '":' + this.value + '}}';
+        if (/[\*?]/.test(this.value)) {
+          jsonString += '{"wildcard":{"';
+        } else {
+          jsonString += '{"match_phrase":{"';
+        }
+        jsonString += this.field + '":' + this.value + '}}';
         break;
       default:
         break;
