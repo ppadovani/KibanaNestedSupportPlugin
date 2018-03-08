@@ -56,6 +56,17 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
     }
   };
 
+  function stripNested(aggs) {
+    _.forOwn(aggs, function(value, key) {
+      if (key.startsWith('nested_')) {
+        const subAggKey = key.substr(7);
+        aggs[subAggKey] = stripNested(value[subAggKey]);
+        delete aggs[key];
+      }
+    });
+    return aggs;
+  }
+
   return new BucketAggType({
     name: 'terms',
     title: 'Terms',
@@ -66,7 +77,8 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
     createFilter: createFilter,
     postFlightRequest: async (resp, aggConfigs, aggConfig, nestedSearchSource) => {
       if (aggConfig.params.otherBucket) {
-        const filterAgg = buildOtherBucketAgg(aggConfigs, aggConfig, resp);
+        resp.aggregations = stripNested(resp.aggregations);
+        const filterAgg = buildOtherBucketAgg(aggConfigs, aggConfig, resp); //MISSING AN AGG CHECK AGAINST PURE KIBANA
         nestedSearchSource.set('aggs', filterAgg);
         const response = await nestedSearchSource.fetchAsRejectablePromise();
         resp = mergeOtherBucketAggResponse(aggConfigs, resp, response, aggConfig, filterAgg());
