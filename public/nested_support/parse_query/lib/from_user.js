@@ -17,11 +17,18 @@ parser.yy = require('./query_adapter');
  * @returns {object}
  */
 export function fromUser(text, model) {
-  function getQueryStringQuery(text) {
-    return DecorateQueryProvider({query_string: {query: text}});
+
+  function getDefaultQuery() {
+    return { match_all: {} };
   }
 
-  let matchAll = getQueryStringQuery('*');
+  function getTextQuery(query) {
+    return {
+      query_string: { query }
+    };
+  }
+
+  let matchAll = getDefaultQuery();
   if (model !== undefined) {
     ngModel = model;
   }
@@ -59,7 +66,7 @@ export function fromUser(text, model) {
         return undefined;
       }
     }
-    return getQueryStringQuery(text);
+    return getTextQuery(text);
   }
 }
 
