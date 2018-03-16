@@ -1,0 +1,27 @@
+{
+  "host": "ip-192-168-151-162",
+  "fields": {
+    "grp": "plat",
+    "sys": "coll",
+    "srv": "kafka",
+    "pipeline": "kafka-logs",
+    "env": "demo"
+  },
+  "@version": "1",
+  "offset": 28553,
+  "request_id": "REPLACE_ME",
+  "pipeline": "application_log4j",
+  "message": "[2018-02-11 02:22:47,458] TRACE [Controller 1]: Leader imbalance ratio for broker 1 is 0.0 ",
+  "source": "/var/log/controller.log",
+  "type": "log",
+  "input_type": "log",
+  "@timestamp": "2018-02-11T02:22:56.919Z",
+  "beat": {
+    "name": "ip-192-168-151-162",
+    "hostname": "ip-192-168-151-162",
+    "version": "5.6.5"
+  },
+  "tags": [
+    "beats_input_codec_plain_applied"
+  ]
+}

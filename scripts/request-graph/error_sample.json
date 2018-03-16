@@ -1,0 +1,38 @@
+{
+  "host": "003106d3b7f9",
+  "fields": {
+    "grp": "platform",
+    "sys": "atlas",
+    "srv": "atlas",
+    "env": "demo"
+  },
+  "@version": 1,
+  "source_host": "003106d3b7f9",
+  "request_id": "REPLACE_ME",
+  "offset": 87130,
+  "method": "loadModelsInFolder",
+  "pipeline": "application_log4j",
+  "file": "AtlasTypeDefStoreInitializer.java",
+  "message": "error while doing something",
+  "source": "/root/logs/application.log",
+  "class": "org.somewhere.something.myClass",
+  "thread_name": "main",
+  "mdc": {},
+  "logger_name": "org.somewhere.something.myLogger",
+  "@timestamp": "2018-02-06T14:55:04.333Z",
+  "beat": {
+    "name": "003106d3b7f9",
+    "hostname": "003106d3b7f9",
+    "version": "6.1.1"
+  },
+  "level": "ERROR",
+  "tags": [
+    "beats_input_codec_plain_applied"
+  ],
+  "exception": {
+    "stacktrace": "org.somewhere.something.myClassException: java.lang.NullPointerException at com.example.myproject.Book.getTitle(Book.java:16) at com.example.myproject.Author.getBookTitles(Author.java:25) at com.example.myproject.Bootstrap.main(Bootstrap.java:14)",
+    "exception_message": "Given Something was invalid",
+    "exception_class": "org.somewhere.something.myClassException"
+  },
+  "line_number": "184"
+}
