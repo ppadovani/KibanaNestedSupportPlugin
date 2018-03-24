@@ -239,7 +239,7 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
           }
 
           // if the target aggregation is nested, refer to it by its nested location
-          if (orderAgg.nestedPath || orderAgg.reverseNested) {
+          if (agg.params.field.nestedPath) {
             orderAggId = 'nested_' + orderAggId + '>' + orderAggId;
           }
 
