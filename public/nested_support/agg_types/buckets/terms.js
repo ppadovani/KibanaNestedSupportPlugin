@@ -229,7 +229,11 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
             if (dir === 'asc') {
               routeBasedNotifier.warning('Sorting in Ascending order by Count in Terms aggregations is deprecated');
             }
-            order._count = dir;
+            if (agg.params.countByParent) {
+              order['count_' + agg.id] = dir;
+            } else {
+              order._count = dir;
+            }
             return;
           }
 
