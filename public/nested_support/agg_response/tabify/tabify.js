@@ -44,7 +44,7 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
           const splitting = write.canSplit && agg.schema.name === 'split';
           if (splitting) {
             write.split(agg, buckets, function forEachBucket(subBucket, key) {
-              collectBucket(write, agg.id, subBucket, agg.getKey(subBucket), key, aggScale);
+              collectBucket(write, agg.id, subBucket, agg.getKey(subBucket, key), aggScale);
             });
           } else {
             buckets.forEach(function (subBucket, key) {
