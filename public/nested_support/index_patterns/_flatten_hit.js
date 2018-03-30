@@ -79,6 +79,9 @@ export function IndexPatternsNestedFlattenHitProvider(config) {
 
   return function flattenHitWrapper(indexPattern) {
     return function cachedFlatten(hit, deep = false) {
+      if (!deep) {
+        deep = indexPattern.nested;
+      }
       return hit.$$_flattened || (hit.$$_flattened = flattenHit(indexPattern, hit, deep));
     };
   };
