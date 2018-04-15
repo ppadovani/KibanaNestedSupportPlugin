@@ -33,8 +33,14 @@ rangeDef.buildRangeFilter = function(field, params, indexPattern, formattedValue
     filter.script = getRangeScript(field, params);
     filter.meta.field = field.name;
   } else {
-    filter.range = {};
-    filter.range[field.name] = params;
+    // check for nested
+    if (indexPattern.fields.byName[field.name].nestedPath) {
+      filter.query = { nested : { path : indexPattern.fields.byName[field.name].nestedPath, query : { range : {}}}};
+      filter.query.nested.query.range[field.name] = params;
+    } else {
+      filter.range = {};
+      filter.range[field.name] = params;
+    }
   }
 
   return filter;

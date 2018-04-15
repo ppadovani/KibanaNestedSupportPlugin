@@ -42,7 +42,7 @@ typeahead.directive('kbnTypeaheadChild', function () {
         } else {
           scope.$$childHead.inputModel.$setViewValue(item);
           scope.$$childHead.inputModel.$render();
-          self.persistEntry();
+          controller.persistEntry();
           if (ev && ev.type === 'click') {
             scope.$$childHead.onSelect();
           }
