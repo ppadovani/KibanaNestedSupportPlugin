@@ -93,7 +93,7 @@ app.run(function(config, Private) {
             }
           });
         } else {
-          if (dsl.aggs === undefined) {
+          if (dsl.aggs === undefined && !(config.__type.type === "metrics")) {
             prevNestedPath = undefined;
           }
         }
