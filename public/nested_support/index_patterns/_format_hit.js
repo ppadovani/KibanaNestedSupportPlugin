@@ -9,7 +9,7 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
   function convert(hit, val, fieldName, recurse) {
     const field = indexPattern.fields.byName[fieldName];
     if (!field) {
-      if (val.constructor === Array && recurse) {
+      if (val && val.constructor === Array && recurse) {
         let pArr = [];
         _.forEach(val, function (item) {
           let pStore = {};
