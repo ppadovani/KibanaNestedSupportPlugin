@@ -66,7 +66,7 @@
     <td style="padding-left: 15px" colspan="2" style="width: 100%">
       <div id="expanded-data" ng-if="visible(field + '_', pos)" >
         <div ng-repeat="(pos, subObj) in (subObj ? subObj[field] : flattened[field]) track by $index"
-             ng-init="subFormattedArray = (subFormatted ? subFormatted[field] : formatted[field]); fieldPrefix = field" style="border-style: ridge;">
+             ng-init="subFormattedArray = (subFormatted ? subFormatted[field] : formatted[field]); fieldPrefix = field" style="border-style: ridge; margin-top: 10px; border-width: 2px">
           <table class="table table-condensed table-bordered">
             <tbody ng-repeat="(field, value) in subObj track by field" ng-if="true"
                    onLoad="subFormatted = subFormattedArray[pos]" ng-include="'tree_item.html'">
