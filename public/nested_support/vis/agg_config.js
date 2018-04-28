@@ -160,6 +160,32 @@ app.run(function(config, Private) {
     return this.type.getValue(this, bucket);
   };
 
+  aggConfig.prototype.createFilter = function (key) {
+    if (!this.isFilterable()) {
+      throw new TypeError('The "' + this.type.title + '" aggregation does not support filtering.');
+    }
+
+    const field = this.getField();
+    const label = this.getFieldDisplayName();
+    if (field && !field.filterable) {
+      let message = 'The "' + label + '" field can not be used for filtering.';
+      if (field.scripted) {
+        message = 'The "' + label + '" field is scripted and can not be used for filtering.';
+      }
+      throw new TypeError(message);
+    }
+
+    const filter = this.type.createFilter(this, key);
+    if (field.nested) {
+      filter.query = {
+        "nested" : {
+          "path" : field.nestedPath,
+          "query" : filter.query
+        }
+      }
+    }
+    return filter;
+  };
 
 })
 
