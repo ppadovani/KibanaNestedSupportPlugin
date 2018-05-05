@@ -78,8 +78,12 @@ export function IndexPatternsNestedFlattenHitProvider(config) {
   }
 
   return function flattenHitWrapper(indexPattern) {
-    return function cachedFlatten(hit, deep = false) {
-      return hit.$$_flattened || (hit.$$_flattened = flattenHit(indexPattern, hit, deep));
+    return function cachedFlatten(hit, deep = true) {
+            if (deep) {
+                return hit.$$_flattened_deep || (hit.$$_flattened_deep = flattenHit(indexPattern, hit, deep));
+              } else {
+                return hit.$$_flattened || (hit.$$_flattened = flattenHit(indexPattern, hit, deep));
+              }
     };
   };
 }
