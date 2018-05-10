@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
 import { AggTypesMetricsMetricAggTypeProvider } from 'ui/agg_types/metrics/metric_agg_type';
@@ -12,8 +13,23 @@ app.run(function(config, Private) {
 
     // Return proper values when no buckets are present
     // `Count` handles empty sets properly
-    if ((!bucket[agg.id] && !bucket['nested_' + agg.id])  && isSettableToZero) return 0;
+    bucket = stripNested(bucket);
+    if (!bucket[agg.id] && isSettableToZero) return 0;
 
-    return (bucket[agg.id] || bucket['nested_' + agg.id][agg.id]).value;
+    return bucket[agg.id].value;
   };
+
+  function stripNested (parent) {
+    _.forOwn(parent, function(value, key) {
+      if (key.startsWith('nested_')) {
+        _.forOwn(value, function(child, childKey) {
+          parent[childKey] = child;
+          stripNested(child);
+        });
+        delete parent[key];
+      }
+    });
+    return parent;
+  }
+
 });
