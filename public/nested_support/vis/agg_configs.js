@@ -101,7 +101,7 @@ app.run(function(config, Private) {
         // advance the cursor and nest under the previous agg, or
         // put it on the same level if the previous agg doesn't accept
         // sub aggs
-        dslLvlCursor = dsl.aggs || dslLvlCursor;
+        dslLvlCursor = dsl.aggs || (nestedPath ?  dslLvlCursor['nested_' + config.id].aggs : dslLvlCursor);
 
       });
 
