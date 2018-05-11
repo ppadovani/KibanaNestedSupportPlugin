@@ -9,10 +9,10 @@ let app = uiModules.get('kibana/courier');
 app.run(function(config, Private) {
   const StdDeviationAggType = Private(AggTypesMetricsStdDeviationProvider);
   StdDeviationAggType.getValue = function (agg, bucket) {
-     let valueBucket = bucket;
-     if (bucket['nested_' + agg.parentId]) {
-         valueBucket = bucket['nested_' + agg.parentId];
-     }
+	  let valueBucket = bucket;
+	  if (bucket['nested_' + agg.parentId]) {
+		  valueBucket = bucket['nested_' + agg.parentId];
+	  }
       return _.get(valueBucket[agg.parentId], agg.valProp());
   };
 });

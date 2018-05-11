@@ -14,53 +14,57 @@ const nestedTemplate = _.template(noWhiteSpace(nestedSrcTmpl));
 app.run(function(config, Private) {
   const Source = Private(stringifySource);
 
-  function genNested(sortedFields, highlights, formattedValue) {
-    let nestedObj = '';
-    _.forEach(formattedValue, function(item) {
-      if (nestedObj.length > 0) {
-        nestedObj += ', ';
-      }
-      nestedObj += '&#123;';
-      const sourcePairs = [];
-      const highlightPairs = [];
-      _.forEach(sortedFields, function (sortedField) {
-        const key = sortedField.name;
-        if (item[key] && sortedField.displayPriority >= 0) {
-          const pairs = highlights[key] ? highlightPairs : sourcePairs;
-          const field = key;
-          const val = _.isArray(item[key]) ? genNested(sortedField.fields, item[key]) : item[key];
-          pairs.push([field, val]);
-        }
-      }, []);
+  const SourceFormat = fieldformats.getType("_source");
 
-      nestedObj += nestedTemplate({ defPairs: highlightPairs.concat(sourcePairs) });
-      nestedObj += '&#125;';
-    });
-    return nestedObj;
-  }
+  if (SourceFormat) {
+    function genNested(sortedFields, highlights, formattedValue, nestedKeyPath) {
+      let nestedObj = '';
+      _.forEach(formattedValue, function(item) {
+        if (nestedObj.length > 0) {
+          nestedObj += ', ';
+        }
+        nestedObj += '&#123;';
+        const sourcePairs = [];
+        const highlightPairs = [];
+        _.forEach(sortedFields, function (sortedField) {
+          //Build up the nested path each time genNested is called
+          const key = (sortedField.name.startsWith(nestedKeyPath) ? sortedField.name : nestedKeyPath + '.' + sortedField.name);
+          if (item[key] && sortedField.displayPriority >= 0) {
+            const pairs = highlights[key] ? highlightPairs : sourcePairs;
+            const field = key;
+            const val = _.isArray(item[key]) ? genNested(sortedField.fields, highlights, item[key], key) : item[key];
+            pairs.push([field, val]);
+          }
+        }, []);
+
+        nestedObj += nestedTemplate({ defPairs: highlightPairs.concat(sourcePairs) });
+        nestedObj += '&#125;';
+      });
+      return nestedObj;
+    }
 
   Source.prototype._convert = {
     text: JSON.stringify(),
     html: function sourceToHtml(source, field, hit) {
       if (!field) return this.getConverterFor('text')(source, field, hit);
 
-      // create a list of fields sorted by priority from the indexPattern
-      const sortedFields = field.indexPattern.getDisplayPriorityFieldOrder();
+        // create a list of fields sorted by priority from the indexPattern
+        const sortedFields = field.indexPattern.getDisplayPriorityFieldOrder();
 
-      const highlights = (hit && hit.highlight) || {};
-      const formatted = field.indexPattern.formatHit(hit, true);
-      const highlightPairs = [];
-      const sourcePairs = [];
+        const highlights = (hit && hit.highlight) || {};
+        const formatted = field.indexPattern.formatHit(hit, true);
+        const highlightPairs = [];
+        const sourcePairs = [];
 
-      _.forEach(sortedFields, function (sortedField) {
-        const key = sortedField.name;
-        if (formatted[key]) {
-          const pairs = highlights[key] ? highlightPairs : sourcePairs;
-          const field = key;
-          const val = _.isArray(formatted[key]) ? genNested(sortedField.fields, highlights, formatted[key]) : formatted[key];
-          pairs.push([field, val]);
-        }
-      }, []);
+        _.forEach(sortedFields, function (sortedField) {
+          const key = sortedField.name;
+          if (formatted[key]) {
+            const pairs = highlights[key] ? highlightPairs : sourcePairs;
+            const field = key;
+            const val = _.isArray(formatted[key]) ? genNested(sortedField.fields, highlights, formatted[key], key) : formatted[key];
+            pairs.push([field, val]);
+          }
+        }, []);
 
       return template({ defPairs: highlightPairs.concat(sourcePairs) });
     }
