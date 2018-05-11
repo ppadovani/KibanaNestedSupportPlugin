@@ -51,19 +51,28 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
     return cache;
   }
 
-  formatHit.formatField = function (hit, fieldName) {
+  formatHit.formatField = function (hit, fieldName, val, pos) {
     let partials = hit.$$_partialFormatted;
-    if (partials && partials[fieldName] != null) {
-      return partials[fieldName];
+    const partialsKey = (pos !== undefined ? fieldName + pos : fieldName);
+    if (partials && partials[partialsKey]) {
+      return partials[partialsKey];
     }
 
     if (!partials) {
       partials = hit.$$_partialFormatted = {};
     }
 
-    const deep = indexPattern.fields.byName[fieldName] != undefined;
-    const val = fieldName === '_source' ? hit._source : indexPattern.flattenHit(hit, deep)[fieldName];
-    return partials[fieldName] = convert(hit, val, fieldName, false);
+    if (val !== undefined) {
+      return partials[partialsKey] = convert(hit, val, fieldName, false);
+    }
+
+    if (hit.$$_flattened_deep[partialsKey]) {
+      return partials[partialsKey] = convert(hit, hit.$$_flattened_deep[partialsKey], fieldName, false);
+    }
+
+    const flattened = indexPattern.flattenHit(hit, false);
+    val = fieldName === '_source' ? hit._source : flattened[fieldName];
+    return partials[partialsKey] = convert(hit, val, fieldName, false);
   };
 
   return formatHit;
