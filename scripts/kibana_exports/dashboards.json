@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "0f540ae0-5554-11e8-946c-b717965777f7",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Regression Dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"panelIndex\":\"1\",\"gridData\":{\"x\":0,\"y\":3,\"w\":6,\"h\":3,\"i\":\"1\"},\"id\":\"9631a590-5554-11e8-8e76-3d7bfdf293f0\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"2\",\"gridData\":{\"x\":6,\"y\":3,\"w\":6,\"h\":3,\"i\":\"2\"},\"id\":\"00f3f810-5555-11e8-8e76-3d7bfdf293f0\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"3\",\"gridData\":{\"x\":0,\"y\":6,\"w\":6,\"h\":3,\"i\":\"3\"},\"id\":\"1c249220-5555-11e8-8e76-3d7bfdf293f0\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"4\",\"gridData\":{\"x\":6,\"y\":6,\"w\":6,\"h\":3,\"i\":\"4\"},\"id\":\"5b496d40-5555-11e8-8e76-3d7bfdf293f0\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"5\",\"gridData\":{\"x\":0,\"y\":0,\"w\":12,\"h\":3,\"i\":\"5\"},\"id\":\"0c53e210-5587-11e8-9eff-7955bfffea83\",\"type\":\"search\",\"version\":\"6.2.4\"}]",
+      "optionsJSON": "{\"darkTheme\":false,\"hidePanelTitles\":false,\"useMargins\":true}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[],\"highlightAll\":true,\"version\":true}"
+      }
+    }
+  }
+]

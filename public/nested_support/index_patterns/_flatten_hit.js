@@ -18,10 +18,10 @@ export function IndexPatternsNestedFlattenHitProvider(config) {
       keyPrefix = keyPrefix ? keyPrefix + '.' : '';
       _.forOwn(obj, function (val, key) {
         key = keyPrefix + key;
+        const isNestedField = fields[key] && fields[key].type === 'nested';
+        const isArrayOfObjects = _.isArray(val) && _.isPlainObject(_.first(val));
 
         if (deep) {
-          const isNestedField = fields[key] && fields[key].type === 'nested';
-          const isArrayOfObjects = _.isArray(val) && _.isPlainObject(_.first(val));
           if (isArrayOfObjects && !isNestedField) {
             _.each(val, v => flatten(v, key));
             return;
@@ -52,7 +52,7 @@ export function IndexPatternsNestedFlattenHitProvider(config) {
             } else if (_.isArray(flat[key])) {
               flat[key].push(val);
             } else {
-              flat[key] = [ flat[key], val ];
+              flat[key] = [flat[key], val];
             }
           }
           return;

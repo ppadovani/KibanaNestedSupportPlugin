@@ -1,6 +1,7 @@
 import * as indexPattern from 'ui/index_patterns/_index_pattern';
+import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 import _ from 'lodash';
-import {SavedObjectNotFound, DuplicateField, IndexPatternMissingIndices} from 'ui/errors';
+import {DuplicateField, IndexPatternMissingIndices, SavedObjectNotFound} from 'ui/errors';
 import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
 import UtilsMappingSetupProvider from 'ui/utils/mapping_setup';
 import {Notifier} from 'ui/notify';
@@ -13,12 +14,10 @@ import {IndexPatternsFieldListProvider} from 'ui/index_patterns/_field_list';
 import {IndexPatternsFlattenHitProvider} from 'ui/index_patterns/_flatten_hit';
 import {IndexPatternsPatternCacheProvider} from 'ui/index_patterns/_pattern_cache';
 import {FieldsFetcherProvider} from 'ui/index_patterns/fields_fetcher_provider';
-import { IsUserAwareOfUnsupportedTimePatternProvider } from 'ui/index_patterns/unsupported_time_patterns';
-import {SavedObjectsClientProvider, findObjectByTitle} from 'ui/saved_objects';
+import {IsUserAwareOfUnsupportedTimePatternProvider} from 'ui/index_patterns/unsupported_time_patterns';
+import {findObjectByTitle, SavedObjectsClientProvider} from 'ui/saved_objects';
 import {nestedFormatHit} from './_format_hit';
 import {IndexPatternsNestedFlattenHitProvider} from './_flatten_hit';
-
-import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 
 export function getRoutes() {
   return {
@@ -254,27 +253,77 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       return this.computeDisplayPriorityFieldOrder();
     }
 
-    buildDisplayPriorityFieldOrderMap() {
-      let fieldMap = {};
-      _.forEach(this.fields, function (field) {
-        if (field.nestedPath !== undefined) {
-          if (fieldMap[field.nestedPath] === undefined) {
-            fieldMap[field.nestedPath] = {
-              name: field.nestedPath,
+    insertNestedIntoDisplayPriorityFieldOrderMap(fieldMap, field) {
+      let paths = field.nestedPath.split('.');
+      let pathCount;
+      let lastFieldMapEntry = undefined;
+      for (pathCount = 0; pathCount < paths.length; pathCount ++) {
+        if (pathCount === 0) {
+          if (fieldMap[paths[0]] === undefined) {
+            fieldMap[paths[0]] = {
+              name: paths[0],
               displayPriority: -1,
               fields: {}
             };
           }
-          fieldMap[field.nestedPath].fields[field.name] = {
-            name: field.name,
-            displayPriority: field.displayPriority
+          lastFieldMapEntry = fieldMap[paths[0]];
+        } else if (lastFieldMapEntry[paths[pathCount]] === undefined) {
+          lastFieldMapEntry[paths[pathCount]] = {
+            name: paths[0],
+            displayPriority: -1,
+            fields: {}
           };
-          fieldMap[field.nestedPath].displayPriority = Math.max(fieldMap[field.nestedPath].displayPriority, field.displayPriority);
+          lastFieldMapEntry = lastFieldMapEntry[paths[pathCount]];
+        }
+        lastFieldMapEntry[paths[pathCount]].fields[field.name] = {
+          name: field.name,
+          displayPriority: field.displayPriority
+        };
+        fieldMap[paths[0]].displayPriority = Math.max(fieldMap[paths[0]].displayPriority, field.displayPriority);
+      }
+    }
+
+    buildDisplayPriorityFieldOrderMap() {
+      let fieldMap = {};
+      _.forEach(this.fields, function (field) {
+        if (field.nestedPath !== undefined) {
+          const paths = field.nestedPath.split('.');
+          let pathCount;
+          let lastFieldMapEntry = undefined;
+          for (pathCount = 0; pathCount < paths.length; pathCount ++) {
+            if (pathCount === 0) {
+              if (fieldMap[paths[0]] === undefined) {
+                fieldMap[paths[0]] = {
+                  name: paths[0],
+                  displayPriority: -1,
+                  fields: {}
+                };
+              }
+              lastFieldMapEntry = fieldMap[paths[0]];
+            } else {
+              if (lastFieldMapEntry.fields[paths[pathCount]] === undefined) {
+                lastFieldMapEntry.fields[paths[pathCount]] = {
+                  name: paths[pathCount],
+                  displayPriority: -1,
+                  fields: {}
+                };
+              }
+              lastFieldMapEntry = lastFieldMapEntry.fields[paths[pathCount]];
+              lastFieldMapEntry.displayPriority = Math.max(lastFieldMapEntry.displayPriority, field.displayPriority);
+            }
+            if (pathCount === paths.length - 1) {
+              lastFieldMapEntry.fields[field.name] = {
+                name: field.name,
+                displayPriority: field.displayPriority
+              };
+              fieldMap[paths[0]].displayPriority = Math.max(fieldMap[paths[0]].displayPriority, field.displayPriority);
+            }
+          }
         } else {
           fieldMap[field.name] = {
             name: field.name,
             displayPriority: field.displayPriority
-          }
+          };
         }
       });
       return fieldMap;
