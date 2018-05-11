@@ -69,10 +69,10 @@ function structureController($scope) {
     if (pos !== undefined) {
       key += pos;
     }
-    if (partials && partials[key] != null) {
+    if (partials && partials[key] !== undefined) {
       text = partials[key];
     } else {
-      text = partials[key] = $scope.indexPattern.formatField($scope.hit, fieldName);
+      text = partials[key] = $scope.indexPattern.formatField($scope.hit, fieldName, (row !== undefined ? row[fieldName] : undefined), pos);
     }
 
     return _.trunc(text, {'length': 200});

@@ -199,7 +199,7 @@ aggConfig.VisAggConfigProvider = function(Private, fieldTypeFilter) {
       }
     }
     return filter;
- };
+  };
 
   /**
    * Hook into param onRequest handling, and tell the aggConfig that it
