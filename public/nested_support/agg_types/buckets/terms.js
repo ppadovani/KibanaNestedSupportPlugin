@@ -183,6 +183,11 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
               routeBasedNotifier.warning('Sorting in Ascending order by Count in Terms aggregations is deprecated');
             }
             order._count = dir;
+            if (agg.params.countByParent) {
+              order['count_' + agg.id] = dir;
+            } else {
+              order._count = dir;
+            }
             return;
           }
 
@@ -192,7 +197,7 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
           }
 
           // if the target aggregation is nested, refer to it by its nested location
-          if (orderAgg.nestedPath || orderAgg.reverseNested) {
+          if ((!orderAgg.params.field.nestedPath && agg.params.field.nestedPath) || orderAgg.params.field.nestedPath !== agg.params.field.nestedPath) {
             orderAggId = 'nested_' + orderAggId + '>' + orderAggId;
           }
 

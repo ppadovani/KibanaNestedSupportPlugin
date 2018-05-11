@@ -189,7 +189,16 @@ aggConfig.VisAggConfigProvider = function(Private, fieldTypeFilter) {
       throw new TypeError(message);
     }
 
-    return this.type.createFilter(this, key);
+    const filter = this.type.createFilter(this, key);
+    if (field.nested) {
+      filter.query = {
+        "nested" : {
+          "path" : field.nestedPath,
+          "query" : filter.query
+        }
+      }
+    }
+    return filter;
   };
 
   /**

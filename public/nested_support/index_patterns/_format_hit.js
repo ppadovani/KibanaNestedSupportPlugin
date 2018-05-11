@@ -9,7 +9,7 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
   function convert(hit, val, fieldName, recurse) {
     const field = indexPattern.fields.byName[fieldName];
     if (!field) {
-      if (val.constructor === Array && recurse) {
+      if (val && val.constructor === Array && recurse) {
         let pArr = [];
         _.forEach(val, function (item) {
           let pStore = {};
@@ -41,7 +41,7 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
     const partials = (recurse ? hit.$$_partialStructured : hit.$$_partialFormatted) || (recurse ? hit.$$_partialStructured = {}: hit.$$_partialFormatted = {});
     const cache = (recurse ? hit.$$_structured = {} : hit.$$_formatted = {});
 
-    _.forOwn(indexPattern.flattenHit(hit), function (val, fieldName) {
+    _.forOwn(indexPattern.flattenHit(hit, false), function (val, fieldName) {
       // sync the formatted and partial cache
       // const formatted = partials[fieldName] == null ? convert(hit, val, fieldName) : partials[fieldName];
       const formatted = partials[fieldName] == null ? convert(hit, val, fieldName, recurse) : partials[fieldName];
@@ -62,10 +62,6 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
       partials = hit.$$_partialFormatted = {};
     }
 
-<<<<<<< HEAD
-    const val = fieldName === '_source' ? hit._source : indexPattern.flattenHit(hit)[fieldName];
-    return partials[fieldName] = convert(hit, val, fieldName, false);
-=======
     if (val !== undefined) {
       return partials[partialsKey] = convert(hit, val, fieldName, false);
     }
@@ -77,7 +73,6 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
     const flattened = indexPattern.flattenHit(hit, false);
     val = fieldName === '_source' ? hit._source : flattened[fieldName];
     return partials[partialsKey] = convert(hit, val, fieldName, false);
->>>>>>> e9f6dc6... Back ports of #69 #71 #74 #75
   };
 
   return formatHit;
