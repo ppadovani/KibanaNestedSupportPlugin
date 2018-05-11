@@ -33,6 +33,17 @@
       },
       "type": {
        "type": "keyword"
+      },
+      "options": {
+       "type": "nested",
+       "properties": {
+        "name": {
+         "type": "keyword"
+        },
+        "price": {
+         "type": "float"
+        }
+       }
       }
      }
     },
