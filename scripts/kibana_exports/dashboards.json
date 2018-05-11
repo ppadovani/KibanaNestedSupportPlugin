@@ -1,0 +1,19 @@
+[
+  {
+    "_id": "AWNlHrmN8cWjy1F3S_c6",
+    "_type": "dashboard",
+    "_source": {
+      "title": "regression dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"size_x\":12,\"size_y\":3,\"panelIndex\":1,\"type\":\"search\",\"id\":\"0c53e210-5587-11e8-9eff-7955bfffea83\",\"col\":1,\"row\":1,\"columns\":[\"_source\"],\"sort\":[\"_score\",\"desc\"]},{\"size_x\":6,\"size_y\":3,\"panelIndex\":2,\"type\":\"visualization\",\"id\":\"AWNlGTpa8cWjy1F3S_ct\",\"col\":1,\"row\":4},{\"size_x\":6,\"size_y\":3,\"panelIndex\":3,\"type\":\"visualization\",\"id\":\"AWNlGtuh8cWjy1F3S_c5\",\"col\":7,\"row\":4},{\"size_x\":6,\"size_y\":3,\"panelIndex\":4,\"type\":\"visualization\",\"id\":\"5b496d40-5555-11e8-8e76-3d7bfdf293f0\",\"col\":1,\"row\":7},{\"size_x\":6,\"size_y\":3,\"panelIndex\":5,\"type\":\"visualization\",\"id\":\"1c249220-5555-11e8-8e76-3d7bfdf293f0\",\"col\":7,\"row\":7}]",
+      "optionsJSON": "{\"darkTheme\":false}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[{\"query\":{\"match_all\":{}}}],\"highlightAll\":true,\"version\":true}"
+      }
+    }
+  }
+]
