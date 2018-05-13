@@ -51,18 +51,34 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
     return cache;
   }
 
-  formatHit.formatField = function (hit, fieldName) {
+  formatHit.formatField = function (hit, fieldName, val, pos) {
     let partials = hit.$$_partialFormatted;
-    if (partials && partials[fieldName] != null) {
-      return partials[fieldName];
+    const partialsKey = (pos !== undefined ? fieldName + pos : fieldName);
+    if (partials && partials[partialsKey]) {
+      return partials[partialsKey];
     }
 
     if (!partials) {
       partials = hit.$$_partialFormatted = {};
     }
 
-    const val = fieldName === '_source' ? hit._source : indexPattern.flattenHit(hit, false)[fieldName];
-    return partials[fieldName] = convert(hit, val, fieldName, false);
+    if (val !== undefined) {
+      return partials[partialsKey] = convert(hit, val, fieldName, false);
+    }
+
+    const flattened = indexPattern.flattenHit(hit, false);
+    val = fieldName === '_source' ? hit._source : flattened[fieldName];
+    // if (val === undefined && fieldName.indexOf('.') !== -1) {
+    //   const paths = fieldName.split('.');
+    //   let parentPath = paths[0];
+    //   val = flattened[parentPath];
+    //   let pathCount;
+    //   for (pathCount = 1; pathCount < paths.length; pathCount++) {
+    //     parentPath = parentPath + '.' + paths[pathCount];
+    //     val = val[pos][parentPath];
+    //   }
+    // }
+    return partials[partialsKey] = convert(hit, val, fieldName, false);
   };
 
   return formatHit;
