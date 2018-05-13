@@ -27,7 +27,7 @@ app.run(function(config, Private) {
   const SourceFormat = fieldformats.getType("_source");
   
   if (SourceFormat) {
-    function genNested(sortedFields, highlights, formattedValue) {
+    function genNested(sortedFields, highlights, formattedValue, nestedKeyPath) {
       let nestedObj = '';
       _.forEach(formattedValue, function(item) {
         if (nestedObj.length > 0) {
@@ -37,11 +37,12 @@ app.run(function(config, Private) {
         const sourcePairs = [];
         const highlightPairs = [];
         _.forEach(sortedFields, function (sortedField) {
-          const key = sortedField.name;
+          //Build up the nested path each time genNested is called
+          const key = (sortedField.name.startsWith(nestedKeyPath) ? sortedField.name : nestedKeyPath + '.' + sortedField.name);
           if (item[key] && sortedField.displayPriority >= 0) {
             const pairs = highlights[key] ? highlightPairs : sourcePairs;
             const field = key;
-            const val = _.isArray(item[key]) ? genNested(sortedField.fields, item[key]) : item[key];
+            const val = _.isArray(item[key]) ? genNested(sortedField.fields, highlights, item[key], key) : item[key];
             pairs.push([field, val]);
           }
         }, []);
@@ -70,7 +71,7 @@ app.run(function(config, Private) {
           if (formatted[key]) {
             const pairs = highlights[key] ? highlightPairs : sourcePairs;
             const field = key;
-            const val = _.isArray(formatted[key]) ? genNested(sortedField.fields, highlights, formatted[key]) : formatted[key];
+            const val = _.isArray(formatted[key]) ? genNested(sortedField.fields, highlights, formatted[key], key) : formatted[key];
             pairs.push([field, val]);
           }
         }, []);
