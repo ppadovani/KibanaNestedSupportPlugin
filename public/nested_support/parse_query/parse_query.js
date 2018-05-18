@@ -20,7 +20,7 @@ uiModules
             };
 
             let fieldMap;
-            
+
             if ($scope.$parent.indexPattern) {
               fieldMap = $scope.$parent.indexPattern.fields;
 
