@@ -15,7 +15,7 @@
       ],
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"f38212a0-5551-11e8-81f5-873713454ce3\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":{\"nested\":{\"path\":\"cars.options\",\"query\":{\"bool\":{\"filter\":{\"term\":{\"cars.options.name\":\"V6\"}}}}}}},\"filter\":[]}"
+        "searchSourceJSON": "{\"index\":\"AWKvpwHHv7I_9s6wvT4V\",\"highlightAll\":true,\"version\":true,\"query\":{\"nested\":{\"path\":\"cars.options\",\"query\":{\"bool\":{\"filter\":{\"term\":{\"cars.options.name\":\"V6\"}}}}}},\"filter\":[]}"
       }
     }
   }

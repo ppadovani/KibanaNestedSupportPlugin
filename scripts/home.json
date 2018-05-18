@@ -42,16 +42,17 @@
        "type": "string"
       },
        "options": {
-         "type": "nested",
-         "properties": {
-           "name": {
-             "index": "not_analyzed",
-             "type": "string"
-           },
-           "price": {
-             "type": "float"
-           }
+        "type": "nested",
+        "properties": {
+         "name": {
+          "index": "not_analyzed",
+          "type": "string"
+         },
+         "price": {
+          "type": "float"
          }
+        }
+       }
      }
     },
     "cars_size": {

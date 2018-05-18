@@ -66,6 +66,10 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
       return partials[partialsKey] = convert(hit, val, fieldName, false);
     }
 
+    if (hit.$$_flattened_deep[partialsKey]) {
+      return partials[partialsKey] = convert(hit, hit.$$_flattened_deep[partialsKey], fieldName, false);
+    }
+
     const flattened = indexPattern.flattenHit(hit, false);
     val = fieldName === '_source' ? hit._source : flattened[fieldName];
     return partials[partialsKey] = convert(hit, val, fieldName, false);

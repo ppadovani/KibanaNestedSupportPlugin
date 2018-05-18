@@ -102,18 +102,6 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       indexPattern.title = indexPattern.id;
     }
 
-    if (indexPattern.isUnsupportedTimePattern()) {
-      if (!isUserAwareOfUnsupportedTimePattern(indexPattern)) {
-        const warning = (
-          'Support for time-intervals has been removed. ' +
-          `View the ["${indexPattern.title}" index pattern in management](` +
-          kbnUrl.getRouteHref(indexPattern, 'edit') +
-          ') for more information.'
-        );
-        notify.warning(warning, { lifetime: Infinity });
-      }
-    }
-
     if (!indexPattern.nested) {
       indexPattern.nested = false;
     } else {
