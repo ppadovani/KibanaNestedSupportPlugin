@@ -20,13 +20,13 @@ uiModules
             };
 
             let fieldMap;
-
-            if ($scope.$parent.indexPattern.nested) {
-              attr.placeholder = 'Search.. (e.g. status=200 AND extension="PHP"';
-            }
-
+            
             if ($scope.$parent.indexPattern) {
               fieldMap = $scope.$parent.indexPattern.fields;
+
+              if ($scope.$parent.indexPattern.nested) {
+                attr.placeholder = 'Search.. (e.g. status=200 AND extension="PHP"';
+              }
             }
 
             toUserIndexPattern(fieldMap);
