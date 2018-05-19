@@ -21,11 +21,10 @@ uiModules
 
         let fieldMap;
 
-        if ($scope.indexPattern.nested) {
-          attr.placeholder = 'Search.. (e.g. status=200 AND extension="PHP"';
-        }
-
         if ($scope.indexPattern) {
+          if ($scope.indexPattern.nested) {
+            attr.placeholder = 'Search.. (e.g. status=200 AND extension="PHP"';
+          }
           fieldMap = $scope.indexPattern.fields;
         }
 
