@@ -80,9 +80,23 @@ DocViewsRegistryProvider.register(function () {
             text = partials[key] = $scope.indexPattern._legacyFormatField($scope.hit, fieldName);
           }
 
+<<<<<<< HEAD
           return _.trunc(text, {'length': 200});
         };
       }
+=======
+  $scope.rowSummary = function (row, fieldName, pos) {
+    const partials = $scope.hit.$$_partialFormatted;
+    let key = fieldName;
+    let text = '';
+    if (pos !== undefined) {
+      key += pos;
+    }
+    if (partials && partials[key] !== undefined) {
+      text = partials[key];
+    } else {
+      text = partials[key] = $scope.indexPattern.formatField($scope.hit, fieldName, (row !== undefined ? row[fieldName] : undefined), pos);
+>>>>>>> e9f6dc6... Back ports of #69 #71 #74 #75
     }
   };
 });

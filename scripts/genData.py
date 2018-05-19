@@ -20,6 +20,7 @@ students = []
 carMakes = ['Honda','Acura','Lexus']
 carTypes = {'Honda': ['CRV','HRV','Civic','Accord'], 'Acura' : ['TLX','RDX', 'MDX'], 'Lexus' : ['RX350', 'IS', 'ES', 'GS', 'LS']}
 colors = ['blue', 'red', 'black', 'white', 'purple', 'yellow', 'brown', 'pearl', 'graphite', 'grey']
+carOptions = {'Leather': 650.00, 'Entertainment': 1250.00, 'AlloyWheels': 3125.00, 'AllWeatherMats' : 350.00, 'V6': 5500.00}
 
 #House data for random creation
 houseTypes = ['ranch', 'cape', 'townhouse', 'condo', 'two story']
@@ -93,6 +94,7 @@ class House:
 		self.family_size = len(self.family)
 		count = random.randint(1, 3)
 		for i in range(count):
+			car = Car()
 			self.cars.append(Car())
 		self.cars_size = len(self.cars)
 		self.rooms = []
@@ -122,6 +124,17 @@ class Car:
 		self.make = random.sample(carMakes, 1)[0]
 		self.type = random.sample(carTypes[self.make], 1)[0]
 		self.color = random.sample(colors, 1)[0]
+		self.options = []
+		optionCount = random.randint(1, 3)
+		for o in range(optionCount):
+			self.options.append(CarOption())
+
+
+class CarOption:
+    def __init__(self):
+        optionKey = random.sample(list(carOptions), 1)[0]
+        self.name = optionKey
+        self.price = carOptions[optionKey]
 
 class Person:
 	def __init__(self, surname, age):
