@@ -7,14 +7,12 @@
 
 import _ from 'lodash';
 import { uiModules } from 'ui/modules';
-import { RegistryFieldFormatsProvider } from 'ui/registry/field_formats';
-import { VisAggConfigProvider } from 'ui/vis/agg_config';
+import { fieldFormats } from 'ui/registry/field_formats';
+import { AggConfig } from 'ui/vis/agg_config';
 
 let app = uiModules.get('kibana/courier');
 
 app.run(function(config, Private) {
-  const aggConfig = Private(VisAggConfigProvider);
-
 
   /**
    * Convert this aggConfig to its dsl syntax.
@@ -25,7 +23,7 @@ app.run(function(config, Private) {
    * @return {void|Object} - if the config has a dsl representation, it is
    *                         returned, else undefined is returned
    */
-  aggConfig.prototype.toDsl = function (prevNestedPath) {
+  AggConfig.prototype.toDsl = function (prevNestedPath) {
     if (this.type.hasNoDsl) return;
 
     if (this.params.orderAgg) {
@@ -105,7 +103,7 @@ app.run(function(config, Private) {
    * @returns {void|Object} The original result of `this.toDsl()`, regardless
    * of whether this aggregation is nested.
    */
-  aggConfig.prototype.toDslNested = function (destination, nestedPath, reverseNested) {
+  AggConfig.prototype.toDslNested = function (destination, nestedPath, reverseNested) {
     let id = this.id;
     let dsl = this.toDsl(nestedPath);
     let result = dsl; // save the original dsl to return later
@@ -153,14 +151,14 @@ app.run(function(config, Private) {
     return result;
   };
 
-  aggConfig.prototype.getValue = function (id, bucket) {
+  AggConfig.prototype.getValue = function (id, bucket) {
     if (bucket['count_' + id]) {
       return this.type.getValue(this, bucket['count_' + id]);
     }
     return this.type.getValue(this, bucket);
   };
 
-  aggConfig.prototype.createFilter = function (key) {
+  AggConfig.prototype.createFilter = function (key) {
     if (!this.isFilterable()) {
       throw new TypeError('The "' + this.type.title + '" aggregation does not support filtering.');
     }
@@ -176,7 +174,7 @@ app.run(function(config, Private) {
     }
 
     const filter = this.type.createFilter(this, key);
-    if (field.nested) {
+    if (field && field.nested) {
       filter.query = {
         "nested" : {
           "path" : field.nestedPath,

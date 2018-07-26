@@ -74,6 +74,6 @@ function structureController($scope) {
       text = partials[key] = $scope.indexPattern.formatField($scope.hit, fieldName, (row !== undefined ? row[fieldName] : undefined), pos);
     }
 
-    return _.trunc(text, {'length': 200});
+    return _.truncate(text, {'length': 200});
   };
 }

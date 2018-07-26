@@ -4,7 +4,7 @@ phraseLib.buildPhraseFilter = function(field, value, indexPattern) {
   const filter = { meta: { index: indexPattern.id } };
 
   if (field.scripted) {
-    filter.script = getPhraseScript(field, value);
+    filter.script = phraseLib.getPhraseScript(field, value);
     filter.meta.field = field.name;
   } else {
     // check for nested

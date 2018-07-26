@@ -1,0 +1,38 @@
+<div
+  class="typeahead"
+  ng-keydown="typeahead.onKeyDown($event)"
+  ng-keypress="typeahead.onKeyPress($event)"
+>
+  <ng-transclude></ng-transclude>
+  <div
+    class="typeahead-popover"
+    ng-show="typeahead.isVisible() || $parent.queryBar.localQuery.parseError"
+    ng-mouseenter="typeahead.onMouseEnter()"
+    ng-mouseleave="typeahead.onMouseLeave()"
+  >
+    <div
+      class="typeahead-items"
+      kbn-scroll-bottom="typeahead.increaseLimit()"
+    >
+      <div ng-show="$parent.queryBar.query.parseError !== undefined"
+        class="parseError">
+        <div class="parseError__text">
+          {{$parent.queryBar.query.parseError}}
+        </div>
+      </div>
+      <div
+        class="typeahead-item"
+        ng-repeat="item in typeahead.items | limitTo: typeahead.limit"
+        ng-class="{active: $index === typeahead.selectedIndex}"
+        ng-click="typeahead.onItemClick()"
+        ng-mouseenter="typeahead.selectedIndex = $index"
+      >
+        <kbn-typeahead-item
+          item="item"
+          template="typeahead.itemTemplate"
+        >
+        </kbn-typeahead-item>
+      </div>
+    </div>
+  </div>
+</div>

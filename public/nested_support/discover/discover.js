@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import {uiModules} from 'ui/modules';
 import uiRoutes from 'ui/routes';
 import template from './discover.html';
+import { getSort } from 'ui/doc_table/lib/get_sort';
 
 
 uiRoutes
@@ -9,6 +11,5 @@ uiRoutes
       if (route) {
         route.template = template;
       }
-    })
-
+    });
 

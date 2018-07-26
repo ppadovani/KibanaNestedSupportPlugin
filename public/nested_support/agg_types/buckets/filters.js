@@ -31,13 +31,15 @@ Filters.AggTypesBucketsFiltersProvider = function(Private, Notifier) {
             const input = _.cloneDeep(filter.input);
             if (!input) return notif.log('malformed filter agg params, missing "input" query');
 
+            if (aggConfig !== undefined) {}
+
             const query = input.query = luceneStringToDsl(input.query);
             if (!query) return notif.log('malformed filter agg params, missing "query" on input');
 
             decorateQuery(query);
 
             const matchAllLabel = (filter.input.query === '' && _.has(query, 'match_all')) ? '*' : '';
-            const label = filter.label || matchAllLabel || _.get(query, 'query_string.query') || angular.toJson(query);
+            const label = filter.label || matchAllLabel || _.get(query, 'query_string.query') || filter.base_query || angular.toJson(query);
             filters[label] = input;
           }, {});
 

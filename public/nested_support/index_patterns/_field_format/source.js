@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { noWhiteSpace } from './no_white_space';
-import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
+import { fieldFormats } from 'ui/registry/field_formats';
 import { uiModules } from 'ui/modules';
 import nestedSrcTmpl from './_nested_source.html';
 
@@ -22,9 +22,9 @@ export function replacer(key, value) {
 }
 
 app.run(function(config, Private) {
-  const fieldformats = Private(RegistryFieldFormatsProvider);
 
-  const SourceFormat = fieldformats.getType("_source");
+
+  const SourceFormat = fieldFormats.getType("_source");
   
   if (SourceFormat) {
     function genNested(sortedFields, highlights, formattedValue, nestedKeyPath) {

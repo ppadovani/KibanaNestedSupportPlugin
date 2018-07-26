@@ -9,7 +9,7 @@
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"f38212a0-5551-11e8-81f5-873713454ce3\",\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        "searchSourceJSON": "{\"index\":\"60a10660-8771-11e8-9b60-d599b8f9d74a\",\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
       }
     }
   },
@@ -23,7 +23,7 @@
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"f38212a0-5551-11e8-81f5-873713454ce3\",\"filter\":[],\"query\":{\"language\":\"lucene\",\"query\":\"\"}}"
+        "searchSourceJSON": "{\"index\":\"60a10660-8771-11e8-9b60-d599b8f9d74a\",\"filter\":[],\"query\":{\"language\":\"lucene\",\"query\":\"\"}}"
       }
     }
   },
@@ -37,7 +37,7 @@
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"f38212a0-5551-11e8-81f5-873713454ce3\",\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        "searchSourceJSON": "{\"index\":\"60a10660-8771-11e8-9b60-d599b8f9d74a\",\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
       }
     }
   },
@@ -51,7 +51,21 @@
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"f38212a0-5551-11e8-81f5-873713454ce3\",\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        "searchSourceJSON": "{\"index\":\"60a10660-8771-11e8-9b60-d599b8f9d74a\",\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+      }
+    }
+  },
+  {
+    "_id": "6d0759a0-9003-11e8-b105-97dfba8b635b",
+    "_type": "visualization",
+    "_source": {
+      "title": "Metric w/ filter test",
+      "visState": "{\"title\":\"Metric w/ filter test\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"metric\",\"metric\":{\"percentageMode\":false,\"useRanges\":false,\"colorSchema\":\"Green to Red\",\"metricColorMode\":\"None\",\"colorsRange\":[{\"from\":0,\"to\":10000}],\"labels\":{\"show\":true},\"invertColors\":false,\"style\":{\"bgFill\":\"#000\",\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"fontSize\":60}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"filters\",\"schema\":\"group\",\"params\":{\"filters\":[{\"input\":{\"query\":{\"nested\":{\"path\":\"cars\",\"query\":{\"bool\":{\"filter\":{\"term\":{\"cars.color\":\"blue\"}}}}}}},\"label\":\"\",\"base_query\":\"cars.color=\\\"blue\\\"\"},{\"input\":{\"query\":{\"match_all\":{}}},\"base_query\":\"*\"},{\"input\":{\"query\":{\"nested\":{\"path\":\"cars\",\"query\":{\"bool\":{\"filter\":{\"term\":{\"cars.make\":\"Honda\"}}}}}}},\"base_query\":\"cars.make=\\\"Honda\\\"\"}]}}]}",
+      "uiStateJSON": "{\"spy\":null}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"60a10660-8771-11e8-9b60-d599b8f9d74a\",\"filter\":[],\"query\":{\"language\":\"kuery\",\"query\":\"\"}}"
       }
     }
   }

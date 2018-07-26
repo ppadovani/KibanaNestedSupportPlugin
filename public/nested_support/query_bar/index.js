@@ -1,2 +1,2 @@
-import './lib/queryLanguages';
+//import './lib/queryLanguages';
 import './directive/query_bar';

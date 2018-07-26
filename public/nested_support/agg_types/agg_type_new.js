@@ -1,9 +1,10 @@
 import _ from 'lodash';
-import { AggParams } from 'ui/agg_types/agg_params';
-import { fieldFormats } from 'ui/registry/field_formats';
-import * as aggType from 'ui/agg_types/agg_type';
+import { AggParams } from './agg_params';
+import { fieldFormats } from '../registry/field_formats';
 
-aggType.AggTypesAggTypeProvider = function(Private) {
+export function AggTypesAggTypeProvider() {
+
+
 
   /**
    * Generic AggType Constructor
@@ -106,18 +107,6 @@ aggType.AggTypesAggTypeProvider = function(Private) {
           write: _.noop
         });
       }
-
-      this.params.push({
-          name: 'nested',
-          type: 'nested',
-          advanced: true
-      });
-
-      this.params.push({
-          name: 'countByParent',
-          type: 'boolean',
-          write: _.noop
-      });
 
       this.params = new AggParams(this.params);
     }

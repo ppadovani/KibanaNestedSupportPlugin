@@ -5,7 +5,7 @@ export default function (kibana) {
     require: ['elasticsearch'],
     name: 'nested-fields-support',
     uiExports: {
-
+      
       docViews: ['plugins/nested-fields-support/nested_support/doc_view/structure'],
 
       managementSections: [
@@ -16,8 +16,7 @@ export default function (kibana) {
       hacks: [
         'plugins/nested-fields-support/nested_support'
       ]
-
-
+      
     },
 
     config(Joi) {
@@ -27,7 +26,7 @@ export default function (kibana) {
       }).default();
     },
 
-
+    
     // Update the .kibana index-pattern type to include a new nested flag
     init(server, options) {
       const {callWithInternalUser} = server.plugins.elasticsearch.getCluster('admin');
@@ -41,7 +40,7 @@ export default function (kibana) {
               properties: {
                 nested: {
                   type: "boolean"
-                }
+    }
               }
             }
           }

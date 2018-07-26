@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { AggTypesBucketsBucketAggTypeProvider } from 'ui/agg_types/buckets/_bucket_agg_type';
-import { VisAggConfigProvider } from 'ui/vis/agg_config';
-import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
+import { AggConfig } from 'ui/vis/agg_config';
+import { Schemas } from 'ui/vis/editors/default/schemas';
 import { AggTypesBucketsCreateFilterTermsProvider } from 'ui/agg_types/buckets/create_filter/terms';
 import orderAggTemplate from 'ui/agg_types/controls/order_agg.html';
 import orderAndSizeTemplate from 'ui/agg_types/controls/order_and_size.html';
@@ -12,8 +12,6 @@ import * as Terms from 'ui/agg_types/buckets/terms';
 
 Terms.AggTypesBucketsTermsProvider = function(Private) {
   const BucketAggType = Private(AggTypesBucketsBucketAggTypeProvider);
-  const AggConfig = Private(VisAggConfigProvider);
-  const Schemas = Private(VisSchemasProvider);
   const createFilter = Private(AggTypesBucketsCreateFilterTermsProvider);
   const routeBasedNotifier = Private(RouteBasedNotifierProvider);
   const { buildOtherBucketAgg, mergeOtherBucketAggResponse, updateMissingBucket } = Private(OtherBucketHelperProvider);
@@ -167,6 +165,12 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
             return aggFilter.includes(`!${agg.type.name}`);
           };
 
+          $scope.$watch('agg.params.field.type', (type) => {
+            if (type !== 'string') {
+              $scope.agg.params.missingBucket = false;
+            }
+          });
+
           function updateOrderAgg() {
             // abort until we get the responseValueAggs
             if (!$scope.responseValueAggs) return;
@@ -216,7 +220,7 @@ Terms.AggTypesBucketsTermsProvider = function(Private) {
             output.params.valueType = agg.getField().type === 'number' ? 'float' : agg.getField().type;
           }
 
-          if (agg.params.missingBucket) {
+          if (agg.params.missingBucket && agg.params.field.type === 'string') {
             output.params.missing = '__missing__';
           }
 

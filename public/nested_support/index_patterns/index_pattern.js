@@ -1,23 +1,25 @@
-import * as indexPattern from 'ui/index_patterns/_index_pattern';
-import {OldIndexPatternProvider} from 'ui/index_patterns/_index_pattern';
 import _ from 'lodash';
-import {DuplicateField, IndexPatternMissingIndices, SavedObjectNotFound} from 'ui/errors';
-import {RegistryFieldFormatsProvider} from 'ui/registry/field_formats';
+import { SavedObjectNotFound, DuplicateField, IndexPatternMissingIndices } from 'ui/errors';
+import angular from 'angular';
+import { fieldFormats } from 'ui/registry/field_formats';
 import UtilsMappingSetupProvider from 'ui/utils/mapping_setup';
-import {Notifier} from 'ui/notify';
+import { Notifier } from 'ui/notify';
 
-import {getComputedFields} from 'ui/index_patterns/_get_computed_fields';
-import {formatHit} from 'ui/index_patterns/_format_hit';
-import {IndexPatternsGetProvider} from 'ui/index_patterns/_get';
-import {IndexPatternsIntervalsProvider} from 'ui/index_patterns/_intervals';
-import {IndexPatternsFieldListProvider} from 'ui/index_patterns/_field_list';
-import {IndexPatternsFlattenHitProvider} from 'ui/index_patterns/_flatten_hit';
-import {IndexPatternsPatternCacheProvider} from 'ui/index_patterns/_pattern_cache';
-import {FieldsFetcherProvider} from 'ui/index_patterns/fields_fetcher_provider';
-import {IsUserAwareOfUnsupportedTimePatternProvider} from 'ui/index_patterns/unsupported_time_patterns';
-import {findObjectByTitle, SavedObjectsClientProvider} from 'ui/saved_objects';
-import {nestedFormatHit} from './_format_hit';
-import {IndexPatternsNestedFlattenHitProvider} from './_flatten_hit';
+import { getComputedFields } from 'ui/index_patterns/_get_computed_fields';
+import { formatHit } from 'ui/index_patterns/_format_hit';
+import { IndexPatternsGetProvider } from 'ui/index_patterns/_get';
+import { IndexPatternsIntervalsProvider } from 'ui/index_patterns/_intervals';
+import { IndexPatternsFieldListProvider } from 'ui/index_patterns/_field_list';
+import { IndexPatternsFlattenHitProvider } from 'ui/index_patterns/_flatten_hit';
+import { IndexPatternsPatternCacheProvider } from 'ui/index_patterns/_pattern_cache';
+import { FieldsFetcherProvider } from 'ui/index_patterns/fields_fetcher_provider';
+import { IsUserAwareOfUnsupportedTimePatternProvider } from 'ui/index_patterns/unsupported_time_patterns';
+import { SavedObjectsClientProvider, findObjectByTitle } from 'ui/saved_objects';
+
+import { nestedFormatHit } from './_format_hit';
+import { IndexPatternsNestedFlattenHitProvider } from './_flatten_hit';
+import * as indexPattern from 'ui/index_patterns/_index_pattern';
+import { OldIndexPatternProvider } from 'ui/index_patterns/_index_pattern';
 
 export function getRoutes() {
   return {
@@ -30,7 +32,7 @@ export function getRoutes() {
 }
 
 indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, Promise, confirmModalPromise, kbnUrl) {
-  const fieldformats = Private(RegistryFieldFormatsProvider);
+
   const getConfig = (...args) => config.get(...args);
   const getIds = Private(IndexPatternsGetProvider)('id');
   const fieldsFetcher = Private(FieldsFetcherProvider);
@@ -42,6 +44,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
   const patternCache = Private(IndexPatternsPatternCacheProvider);
   const isUserAwareOfUnsupportedTimePattern = Private(IsUserAwareOfUnsupportedTimePatternProvider);
   const savedObjectsClient = Private(SavedObjectsClientProvider);
+  const fieldformats = fieldFormats;
 
   const type = 'index-pattern';
   const notify = new Notifier();
@@ -58,10 +61,10 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       type: 'text',
       _serialize(map = {}) {
         const serialized = _.transform(map, serializeFieldFormatMap);
-        return _.isEmpty(serialized) ? undefined : JSON.stringify(serialized);
+        return _.isEmpty(serialized) ? undefined : angular.toJson(serialized);
       },
       _deserialize(map = '{}') {
-        return _.mapValues(JSON.parse(map), deserializeFieldFormatMap);
+        return _.mapValues(angular.fromJson(map), deserializeFieldFormatMap);
       }
     }
   });
@@ -214,11 +217,11 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
       this.getComputedFields = getComputedFields.bind(this);
 
       this._legacyFlattenHit = this.flattenHit = flattenHit(this);
-      this._legacyFormatHit = this.formatHit = formatHit(this, fieldformats.getDefaultInstance('string'));
+      this._legacyFormatHit = this.formatHit = formatHit(this, fieldFormats.getDefaultInstance('string'));
       this._legacyFormatField = this.formatField = this.formatHit.formatField;
 
       this.nestedFlattenHit = nestedFlattenHit(this);
-      this.nestedFormatHit = nestedFormatHit(this, fieldformats.getDefaultInstance('string'));
+      this.nestedFormatHit = nestedFormatHit(this, fieldFormats.getDefaultInstance('string'));
       this.nestedFormatField = this.nestedFormatHit.formatField;
       this.displayPriorityFieldOrder = [];
     }
@@ -403,11 +406,11 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
     }
 
     getNonScriptedFields() {
-      return _.where(this.fields, { scripted: false });
+      return _.filter(this.fields, { scripted: false });
     }
 
     getScriptedFields() {
-      return _.where(this.fields, { scripted: true });
+      return _.filter(this.fields, { scripted: true });
     }
 
     getInterval() {
@@ -421,7 +424,7 @@ indexPattern.IndexPatternProvider = function (Private, $http, config, kbnIndex, 
           if (!Array.isArray(detailedIndices)) {
             return detailedIndices.index;
           }
-          return _.pluck(detailedIndices, 'index');
+          return detailedIndices.map(({ index }) => index).join(',');
         });
     }
 

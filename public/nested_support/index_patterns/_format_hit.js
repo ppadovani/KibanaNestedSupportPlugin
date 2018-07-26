@@ -66,7 +66,7 @@ export function nestedFormatHit(indexPattern, defaultFormat) {
       return partials[partialsKey] = convert(hit, val, fieldName, false);
     }
 
-    if (hit.$$_flattened_deep[partialsKey]) {
+    if (hit.$$_flattened_deep && hit.$$_flattened_deep[partialsKey]) {
       return partials[partialsKey] = convert(hit, hit.$$_flattened_deep[partialsKey], fieldName, false);
     }
 

@@ -10,16 +10,39 @@ define(function () {
     return fromQuery(jsonObject);
   };
 
+  function shouldAddExists(query) {
+    if (query.nested && query.nested.query.bool) {
+      let count = 0;
+      if (query.nested.query.bool.must) {
+        count += Object.keys(query.nested.query.bool.must).length;
+      }
+      if (query.nested.query.bool.should) {
+        count += Object.keys(query.nested.query.bool.should).length;
+      }
+      if (query.nested.query.bool.must_not) {
+        count += Object.keys(query.nested.query.bool.must_not).length;
+      }
+      if (query.nested.query.bool.filter) {
+        count += Object.keys(query.nested.query.bool.filter).length;
+      }
+     return count > 1;
+    }
+    return false;
+  }
+
   function fromQuery(query) {
     if (query.match_all) {
       return '*';
     } else if (query.nested) {
-      if (query.nested.query.must_not) {
-        return 'NOT EXISTS ' + fromQuery(query.nested.query.must_not);
-      } else if (query.nested.query.bool && query.nested.query.bool.must_not) {
-        return '(NOT EXISTS ' + fromQuery(query.nested.query.bool.must_not) + ')';
+      if (shouldAddExists(query)) {
+        if (query.nested.query.must_not) {
+          return 'NOT EXISTS ' + fromQuery(query.nested.query.must_not);
+        } else if (query.nested.query.bool && query.nested.query.bool.must_not) {
+          return '(NOT EXISTS ' + fromQuery(query.nested.query.bool.must_not) + ')';
+        }
+        return 'EXISTS ' + fromQuery(query.nested.query);
       }
-      return 'EXISTS ' + fromQuery(query.nested.query);
+      return fromQuery(query.nested.query);
     } else if (query.term) {
       return fromTerm(query.term);
     } else if (query.bool) {

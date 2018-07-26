@@ -77,7 +77,7 @@ queryManager.QueryManagerProvider = function(Private) {
 
     return {
       add,
-      addLegacyFilter,
+      addLegacyFilter
     };
 
   };

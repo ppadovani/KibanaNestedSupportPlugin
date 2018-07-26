@@ -3,111 +3,105 @@
   name="queryBarForm"
   ng-submit="queryBar.submit()"
 >
-  <div class="typeahead" kbn-typeahead="{{queryBar.typeaheadKey()}}" kbn-typeahead-child on-select="queryBar.submit()" role="search">
-    <div class="kuiLocalSearch">
+  <kbn-typeahead
+    items="queryBar.suggestions"
+    item-template="queryBar.suggestionTemplate"
+    on-select="queryBar.onSuggestionSelect(item)"
+    class="suggestionTypeahead"
+  >
+    <div
+      class="kuiLocalSearch"
+      role="search"
+    >
 
-      <!-- Lucene input -->
-      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'lucene' && !$parent.$parent.indexPattern.nested">
+      <div class="kuiLocalSearchAssistedInput">
+        <!-- knql input -->
         <input
+            ng-if="queryBar.localQuery.language === 'knql'"
+            knql-parse-query
+            input-focus
+            disable-input-focus="queryBar.disableAutoFocus"
+            kbn-typeahead-input
+            ng-model="queryBar.localQuery.query"
+            ng-keydown="queryBar.handleKeyDown($event)"
+            ng-change="queryBar.updateSuggestions()"
+            ng-click="queryBar.updateSuggestions()"
+            placeholder="Search... (e.g. status=200 AND extension=&quot;PHP&quot;)"
+            aria-label="Search input"
+            aria-describedby="discoverLuceneSyntaxHint"
+            type="text"
+            class="kuiLocalSearchInput"
+            ng-class="{'kuiLocalSearchInput-isInvalid': queryBarForm.$invalid}"
+            data-test-subj="queryInput"
+        >
+
+        <!-- Lucene input -->
+        <input
+          ng-if="queryBar.localQuery.language === 'lucene'"
           parse-query
           input-focus
           disable-input-focus="queryBar.disableAutoFocus"
           kbn-typeahead-input
+          ng-change="queryBar.updateSuggestions()"
           ng-model="queryBar.localQuery.query"
           placeholder="Search... (e.g. status:200 AND extension:PHP)"
           aria-label="Search input"
           aria-describedby="discoverLuceneSyntaxHint"
           type="text"
-          class="kuiLocalSearchInput kuiLocalSearchInput--lucene"
+          class="kuiLocalSearchInput"
           ng-class="{'kuiLocalSearchInput-isInvalid': queryBarForm.$invalid}"
           data-test-subj="queryInput"
         >
-        <div class="kuiLocalSearchAssistedInput__assistance">
-          <p class="kuiText">
-            <a
-              id="discoverLuceneSyntaxHint"
-              class="kuiLink"
-              documentation-href="query.luceneQuerySyntax"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Uses lucene query syntax
-            </a>
-          </p>
-        </div>
-      </div>
 
       <!-- kuery input -->
-      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'kuery' && !$parent.$parent.indexPattern.nested">
         <input
+          ng-if="queryBar.localQuery.language === 'kuery'"
           ng-model="queryBar.localQuery.query"
+          ng-model-options="{ debounce: 100 }"
+          ng-trim="false"
+          ng-keydown="queryBar.handleKeyDown($event)"
+          ng-change="queryBar.updateSuggestions()"
+          ng-click="queryBar.updateSuggestions()"
           input-focus
+          match-pairs
           disable-input-focus="queryBar.disableAutoFocus"
           kbn-typeahead-input
           placeholder="Search... (e.g. status:200 AND extension:PHP)"
           aria-label="Search input"
           aria-describedby="discoverKuerySyntaxHint"
           type="text"
-          class="kuiLocalSearchInput kuiLocalSearchInput--kuery"
+          class="kuiLocalSearchInput"
           ng-class="{'kuiLocalSearchInput-isInvalid': queryBarForm.$invalid}"
           data-test-subj="queryInput"
-        >
+        />
         <div class="kuiLocalSearchAssistedInput__assistance">
-          <p class="kuiText">
-            <a
-              id="discoverKuerySyntaxHint"
-              class="kuiLink"
-              documentation-href="query.kueryQuerySyntax"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Uses kuery syntax
-            </a>
-          </p>
+            <query-popover
+              language="queryBar.localQuery.language"
+              on-select-language="queryBar.selectLanguage($language)"
+            ></query-popover>
         </div>
       </div>
 
 
-      <!-- knql input -->
-      <div class="kuiLocalSearchAssistedInput" ng-if="queryBar.localQuery.language === 'knql' || $parent.$parent.indexPattern.nested">
-        <input
-                knql-parse-query
-                ng-model="queryBar.localQuery.query"
-                input-focus
-                disable-input-focus="queryBar.disableAutoFocus"
-                kbn-typeahead-input
-                placeholder="Search... (e.g. status=200 AND extension=&quot;PHP&quot;)"
-                aria-label="Search input"
-                aria-describedby="discoverKuerySyntaxHint"
-                type="text"
-                class="kuiLocalSearchInput kuiLocalSearchInput--kuery"
-                ng-class="{'kuiLocalSearchInput-isInvalid': queryBarForm.$invalid}"
-                data-test-subj="queryInput"
-        >
-        <div class="kuiLocalSearchAssistedInput__assistance">
-          <p class="kuiText">
-            <a
-                    id="discoverKnqlSyntaxHint"
-                    class="kuiLink"
-                    documentation-href="query.knqlQuerySyntax"
-                    target="_blank"
-                    href="https://github.com/ppadovani/KibanaNestedSupportPlugin/blob/master/README.md"
-            >
-              Uses knql syntax
-            </a>
-          </p>
-        </div>
-      </div>
-
-      <select
-        class="kuiLocalSearchSelect"
-        ng-options="option for option in queryBar.availableQueryLanguages"
-        ng-model="queryBar.localQuery.language"
-        ng-change="queryBar.selectLanguage()"
-        ng-if="queryBar.showLanguageSwitcher"
-        data-test-subj="queryBarLanguageSwitcher"
-      >
-      </select>
+      <!--<div class="kuiLocalSearchAssistedInput__assistance">-->
+        <!--<query-popover-->
+            <!--language="queryBar.localQuery.language"-->
+            <!--on-select-language="queryBar.selectLanguage($language)"-->
+        <!--&gt;</query-popover>-->
+      <!--</div>-->
+        <!--<div class="kuiLocalSearchAssistedInput__assistance">-->
+          <!--<p class="kuiText">-->
+            <!--<a-->
+                    <!--id="discoverKnqlSyntaxHint"-->
+                    <!--class="kuiLink"-->
+                    <!--documentation-href="query.knqlQuerySyntax"-->
+                    <!--target="_blank"-->
+                    <!--href="https://github.com/ppadovani/KibanaNestedSupportPlugin/blob/master/README.md"-->
+            <!--&gt;-->
+              <!--Uses knql syntax-->
+            <!--</a>-->
+          <!--</p>-->
+        <!--</div>-->
 
       <button
         type="submit"
@@ -119,6 +113,12 @@
         <span class="fa fa-search" aria-hidden="true"></span>
       </button>
     </div>
-    <kbn-typeahead-items></kbn-typeahead-items>
-  </div>
+  </kbn-typeahead>
+  <!--<div-->
+      <!--class="parseError"-->
+      <!--ng-if="queryBar.localQuery.language === 'knql' && queryBar.localQuery.parseError">-->
+    <!--<div class="parseError__text">-->
+      <!--<pre>{{ queryBar.localQuery.parseError }} </pre>-->
+    <!--</div>-->
+  <!--</div>-->
 </form>

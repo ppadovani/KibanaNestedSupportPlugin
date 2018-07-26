@@ -6,7 +6,7 @@ if (typeof require !== 'undefined') {
 }
 
 scope.fieldDictionary = {};
-scope.possibleFields = {};
+scope.possibleFields = [];
 
 scope.moment = require('moment');
 scope.errors = require('ui/errors');
@@ -63,8 +63,8 @@ scope.validateField = function(fieldName) {
 
   if (mapping === undefined) {
     // find possible fields based on prefix
-    scope.possibleFields[fieldName] = Object.keys(scope.fieldDictionary.byName).filter(function(field) {
-      if (field.startsWith(fieldName)) {
+    scope.possibleFields[fieldName] = scope.fieldDictionary.filter(function(field) {
+      if (field.name.startsWith(fieldName)) {
         return field;
       }
       return undefined;

@@ -1,14 +1,9 @@
 import _ from 'lodash';
-import { TabbedAggResponseWriterProvider } from 'ui/agg_response/tabify/_response_writer';
-import { AggResponseBucketsProvider } from 'ui/agg_response/tabify/_buckets';
+import { TabbedAggResponseWriter } from 'ui/agg_response/tabify/_response_writer';
+import { TabifyBuckets } from './_buckets';
 import * as tabify from 'ui/agg_response/tabify/tabify';
 
-tabify.AggResponseTabifyProvider = function(Private, Notifier) {
-  const TabbedAggResponseWriter = Private(TabbedAggResponseWriterProvider);
-  const Buckets = Private(AggResponseBucketsProvider);
-  const notify = new Notifier({ location: 'agg_response/tabify' });
-
-  function tabifyAggResponse(vis, esResponse, respOpts) {
+tabify.tabifyAggResponse = function(vis, esResponse, respOpts) {
     const write = new TabbedAggResponseWriter(vis, respOpts);
 
     const topLevelBucket = _.assign({}, esResponse.aggregations, {
@@ -18,7 +13,7 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
     collectBucket(write, undefined, topLevelBucket, '', 1);
 
     return write.response();
-  }
+  };
 
   /**
    * read an aggregation from a bucket, which is *might* be found at key (if
@@ -36,9 +31,9 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
 
     switch (agg.schema.group) {
       case 'buckets':
-        let buckets = new Buckets(bucket[agg.id]);
+        let buckets = new TabifyBuckets(bucket[agg.id], agg.params);
         if (bucket['nested_' + agg.id] !== undefined) {
-          buckets = new Buckets(bucket['nested_' + agg.id][agg.id]);
+          buckets = new TabifyBuckets(bucket['nested_' + agg.id][agg.id], agg.params);
         }
         if (buckets.length) {
           const splitting = write.canSplit && agg.schema.name === 'split';
@@ -108,6 +103,3 @@ tabify.AggResponseTabifyProvider = function(Private, Notifier) {
 
     write.aggStack.unshift(agg);
   }
-
-  return notify.timed('tabify agg response', tabifyAggResponse);
-};
