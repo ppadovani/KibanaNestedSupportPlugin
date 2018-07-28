@@ -35,7 +35,7 @@ Filters.AggTypesBucketsFiltersProvider = function(Private, Notifier) {
 
             decorateQuery(query);
 
-            const label = filter.label || formatQuery(query) || filter.base_query || '*';
+            const label = filter.label || filter.base_query || formatQuery(query) || '*';
             filters[label] = input;
           }, {});
 
