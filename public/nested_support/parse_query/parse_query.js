@@ -2,6 +2,23 @@ import {toUser, toUserIndexPattern} from './lib/to_user';
 import {fromUser, fromUserIndexPattern} from './lib/from_user';
 import {uiModules} from 'ui/modules';
 
+function getIndexPattern($scope) {
+  let indexPattern = undefined;
+  let curScope = $scope;
+  while (indexPattern === undefined && curScope) {
+    curScope = curScope.$parent;
+    if (curScope) {
+      indexPattern = curScope.indexPattern;
+    }
+  }
+  // Check specifically for the $parent.agg
+  if (!indexPattern && $scope.$parent.agg) {
+    indexPattern = $scope.$parent.agg.vis.indexPattern;
+  }
+  return indexPattern;
+}
+
+
 uiModules
   .get('kibana')
   .directive('knqlParseQuery', function (Private) {
@@ -17,7 +34,7 @@ uiModules
           $scope.ngModel = fromUser($scope.ngModel, ($scope ? $scope.$parent : undefined));
         };
 
-        $scope.indexPattern = $scope.$parent.$parent.$parent.$parent.indexPattern;
+        $scope.indexPattern = getIndexPattern($scope);
 
         let fieldMap;
 
