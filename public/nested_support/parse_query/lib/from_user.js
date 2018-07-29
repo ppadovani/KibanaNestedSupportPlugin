@@ -5,6 +5,18 @@ import {parser} from './knql';
 let ngModel;
 parser.yy = require('./knql_adapter');
 
+function getQueryBar($scope) {
+  let queryBar = undefined;
+  let curScope = $scope;
+  while (queryBar === undefined && curScope) {
+    curScope = curScope.$parent;
+    if (curScope) {
+      queryBar = curScope.queryBarForm;
+    }
+  }
+  return queryBar;
+}
+
 /**
  * Take text from the user and make it into a query object
  * @param {text} user's query input
@@ -15,13 +27,14 @@ export function fromUser(text, model) {
     return DecorateQueryProvider({query_string: {query: text}});
   }
 
-  parser.yy.possibleFields = {};
+  parser.yy.possibleFields = [];
   let matchAll = getQueryStringQuery('*');
   if (model !== undefined) {
     ngModel = model;
   }
 
   ngModel.parseError = undefined;
+  const queryBar = getQueryBar(ngModel);
   // If we get an empty object, treat it as a *
   if (_.isObject(text)) {
     if (Object.keys(text).length) {
@@ -42,18 +55,20 @@ export function fromUser(text, model) {
       return getQueryStringQuery(text);
     }
   } else {
-    const cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
-    const fieldPart = text.substr(text.substr(0, cursorPos).lastIndexOf(' ') + 1)
+    const cursorPos = queryBar ? queryBar.$$element[0][0].selectionEnd : 0;
+    const fieldPart = queryBar ? text.substr(text.substr(0, cursorPos).lastIndexOf(' ') + 1) : undefined;
     try {
+      const parsed = parser.parse(text).toJson();
+      ngModel.$parent.parseError = undefined;
+      ngModel.$parent.possibleFields = fieldPart ? parser.yy.possibleFields[fieldPart] : [];
       if (ngModel.filter) {
         ngModel.filter.base_query = text;
       }
-      let parsed = parser.parse(text).toJson();
-      ngModel.$parent.possibleFields = parser.yy.possibleFields[fieldPart];
-      ngModel.$parent.parseError = undefined;
       return JSON.parse(parsed);
     } catch (e) {
-      ngModel.$parent.possibleFields = parser.yy.possibleFields[fieldPart];
+      if (queryBar) {
+        ngModel.$parent.possibleFields = parser.yy.possibleFields[fieldPart];
+      }
       ngModel.$parent.parseError = e.message;
       return undefined;
     }
