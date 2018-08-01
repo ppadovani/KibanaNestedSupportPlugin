@@ -1,9 +1,9 @@
 import template from './query_bar.html';
-import { compact, get } from 'lodash';
-import { uiModules } from 'ui/modules';
-import { callAfterBindingsWorkaround } from 'ui/compat';
+import {compact, get} from 'lodash';
+import {uiModules} from 'ui/modules';
+import {callAfterBindingsWorkaround} from 'ui/compat';
 import suggestionTemplate from 'ui/query_bar/directive/suggestion.html';
-import { getSuggestionsProvider } from 'ui/kuery';
+import {getSuggestionsProvider} from 'ui/kuery';
 import 'ui/query_bar/directive/suggestion.less';
 import './parseError.less';
 import 'ui/directives/match_pairs';
@@ -36,7 +36,8 @@ module.config(function ($provide) {
 
       this.indexPattern = getIndexPattern($scope);
       this.query.language = (this.indexPattern  && this.indexPattern.nested ? 'knql' :
-          localStorage['kibana.userQueryLanguage'].replace(/"/g,'') || config.get('search:queryLanguage'));
+          localStorage['kibana.userQueryLanguage'] ? localStorage['kibana.userQueryLanguage'].replace(/"/g, '')
+              || config.get('search:queryLanguage') : config.get('search:queryLanguage'));
 
       if (this.query.language === 'knql') {
         this.query.parsed = undefined;
