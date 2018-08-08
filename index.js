@@ -1,4 +1,22 @@
 import {resolve} from 'path';
+import Promise from 'bluebird';
+
+function updateIndexSchema(callWithInternalUser) {
+  return callWithInternalUser('indices.putMapping', {
+    index: ".kibana",
+    type: "index-pattern",
+    body: {
+      properties: {
+        nested: {
+          type: "boolean"
+        }
+      }
+    }
+  }).catch(function (err) {
+    return Promise.delay(10).then(updateIndexSchema.bind(null, callWithInternalUser));
+  });
+}
+
 
 export default function (kibana) {
   return new kibana.Plugin({
@@ -30,19 +48,22 @@ export default function (kibana) {
 
     // Update the .kibana index-pattern type to include a new nested flag
     init(server, options) {
-      const {callWithInternalUser} = server.plugins.elasticsearch.getCluster('admin');
+      const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
 
-      callWithInternalUser('indices.putMapping', {
-        index: ".kibana",
-        type: "index-pattern",
-        body: {
-          properties: {
-            nested: {
-              type: "boolean"
-            }
-          }
-        }
-      });
+      updateIndexSchema(callWithInternalUser);
+      // retry(5, function() {
+      //   return callWithInternalUser('indices.putMapping', {
+      //     index: ".kibana",
+      //     type: "index-pattern",
+      //     body: {
+      //       properties: {
+      //         nested: {
+      //           type: "boolean"
+      //         }
+      //       }
+      //     }
+      //   });
+      // });
 
       server.route({
         path: '/api/nested-fields-support/mappings/{name}',
