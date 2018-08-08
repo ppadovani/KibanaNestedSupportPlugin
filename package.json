@@ -1,6 +1,6 @@
 {
   "name": "nested-fields-support",
-  "version": "6.2.1-1.0.12",
+  "version": "6.2.1-1.0.13",
   "description": "Nested Support Plugin",
   "license": "Apache-2.0",
   "authors": [
@@ -25,7 +25,8 @@
     "gather-info": "node gather-info.js"
   },
   "dependencies": {
-    "lodash": "3.10.1"
+    "lodash": "3.10.1",
+    "bluebird": "2.9.34"
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "^0.14.0",
