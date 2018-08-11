@@ -1,9 +1,9 @@
 import {resolve} from 'path';
 import Promise from 'bluebird';
 
-function updateIndexSchema(callWithInternalUser, indexName) {
+function updateIndexSchema(callWithInternalUser, server) {
   return callWithInternalUser('indices.putMapping', {
-    index: indexName,
+    index: server.config().get('kibana.index'),
     type: "doc",
     body: {
       properties: {
@@ -17,7 +17,7 @@ function updateIndexSchema(callWithInternalUser, indexName) {
       }
     }
   }).catch(function (err) {
-    return Promise.delay(10).then(updateIndexSchema.bind(null, callWithInternalUser));
+    return Promise.delay(10).then(updateIndexSchema.bind(null, callWithInternalUser, server));
   });
 }
 
@@ -54,7 +54,7 @@ export default function (kibana) {
     init(server, options) {
       const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
 
-      updateIndexSchema(callWithInternalUser, server.config().get('kibana.index'));
+      updateIndexSchema(callWithInternalUser, server);
 
       server.route({
         path: '/api/nested-fields-support/mappings/{name}',
