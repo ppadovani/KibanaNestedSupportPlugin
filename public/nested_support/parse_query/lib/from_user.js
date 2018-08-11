@@ -83,6 +83,9 @@ export function fromUser(text, model) {
       }
     } catch (e) {
       if (query !== undefined) {
+        const cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
+        const start = text.substr(0, cursorPos).lastIndexOf(' ') + 1;
+        const fieldPart = text.substr(text.substr(0, cursorPos).lastIndexOf(' ') + 1)
         query.suggestions = buildSuggestions(fieldPart, start, cursorPos, e.message);
         query.parseError = e.message;
         query.query = text;
@@ -110,11 +113,11 @@ function buildSuggestions(fieldPart, start, end, errMsg) {
   // }
 
   if (parser.yy.possibleFields[fieldPart]) {
-    suggestions.concat(parser.yy.possibleFields[fieldPart].map(field => {
+    suggestions = parser.yy.possibleFields[fieldPart].map(field => {
       const text = field.name;
       const description = getDescription(field.name);
       return {type, text, description, start, end};
-    }));
+    });
   }
   return suggestions;
 }
