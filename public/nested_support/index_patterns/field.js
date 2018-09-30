@@ -1,21 +1,21 @@
 import { ObjDefine } from 'ui/utils/obj_define';
-import { fieldFormats } from 'ui/registry/field_formats';
 import { FieldFormat } from 'ui/../field_formats/field_format';
+import { fieldFormats } from 'ui/registry/field_formats';
 import { getKbnFieldType } from './kbn_field_types';
-import * as field from 'ui/index_patterns/_field';
+import { shortenDottedString } from 'ui/../../core_plugins/kibana/common/utils/shorten_dotted_string';
+import { toastNotifications } from 'ui/notify';
+import chrome from 'ui/chrome';
+import * as field  from 'ui/index_patterns/_field';
 
-field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScope, Notifier) {
-  const notify = new Notifier({ location: 'IndexPattern Field' });
+field.Field = function (indexPattern, spec) {
 
+  // unwrap old instances of Field
+    if (spec instanceof field.Field) spec = spec.$$spec;
 
-  function Field(indexPattern, spec) {
-    // unwrap old instances of Field
-    if (spec instanceof Field) spec = spec.$$spec;
-
-    // constuct this object using ObjDefine class, which
+  // construct this object using ObjDefine class, which
     // extends the Field.prototype but gets it's properties
     // defined using the logic below
-    const obj = new ObjDefine(spec, Field.prototype);
+    const obj = new ObjDefine(spec, field.Field.prototype);
 
     if (spec.name === '_source') {
       spec.type = '_source';
@@ -24,11 +24,10 @@ field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScop
     // find the type for this field, fallback to unknown type
     let type = getKbnFieldType(spec.type);
     if (spec.type && !type) {
-      notify.error(
-        'Unknown field type "' + spec.type + '"' +
-        ' for field "' + spec.name + '"' +
-        ' in indexPattern "' + indexPattern.title + '"'
-      );
+    toastNotifications.addDanger({
+      title: `Unknown field type ${spec.type}`,
+      text: `Field ${spec.name} in indexPattern ${indexPattern.title} is using an unknown field type.`
+    });
     }
 
     if (!type) type = getKbnFieldType('unknown');
@@ -73,36 +72,12 @@ field.IndexPatternsFieldProvider = function (Private, shortDotsFilter, $rootScop
 
     // computed values
     obj.comp('indexPattern', indexPattern);
-    obj.comp('displayName', shortDotsFilter(spec.name));
+    obj.comp('displayName', chrome.getUiSettingsClient().get('shortDots:enable') ? shortenDottedString(spec.name) : spec.name);
     obj.comp('$$spec', spec);
 
     // conflict info
     obj.writ('conflictDescriptions');
 
     return obj.create();
-  }
-
-  Object.defineProperties(Field.prototype, {
-    indexed: {
-      get() {
-        throw new Error('field.indexed has been removed, see https://github.com/elastic/kibana/pull/11969');
-      }
-    },
-    analyzed: {
-      get() {
-        throw new Error('field.analyzed has been removed, see https://github.com/elastic/kibana/pull/11969');
-      }
-    },
-    doc_values: {
-      get() {
-        throw new Error('field.doc_values has been removed, see https://github.com/elastic/kibana/pull/11969');
-      }
-    },
-  });
-
-  Field.prototype.routes = {
-    edit: '/management/kibana/indices/{{indexPattern.id}}/field/{{name}}'
   };
 
-  return Field;
-}

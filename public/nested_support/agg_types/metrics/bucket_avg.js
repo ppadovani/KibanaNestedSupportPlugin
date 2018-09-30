@@ -5,13 +5,12 @@ import { AggTypesMetricsMetricAggTypeProvider } from 'ui/agg_types/metrics/metri
 import { AggTypesMetricsGetResponseAggConfigClassProvider } from 'ui/agg_types/metrics/get_response_agg_config_class';
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
-import { AggTypesMetricsBucketAvgProvider } from 'ui/agg_types/metrics/bucket_avg';
+import { bucketAvgMetricAgg } from 'ui/agg_types/metrics/bucket_avg';
 
 let app = uiModules.get('kibana/courier');
 
 app.run(function(config, Private) {
-  const BucketAvgType = Private(AggTypesMetricsBucketAvgProvider);
-  BucketAvgType.getValue = function (agg, bucket) {
+  bucketAvgMetricAgg.getValue = function (agg, bucket) {
 	  let valueBucket = bucket;
 	  if (bucket['nested_' + agg.parentId]) {
 		  valueBucket = bucket['nested_' + agg.parentId];

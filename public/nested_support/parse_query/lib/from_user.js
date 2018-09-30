@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {DecorateQueryProvider} from 'ui/courier/data_source/_decorate_query';
+import {decorateQuery} from 'ui/courier/search_source/decorate_query';
 import {parser} from './knql';
 
 let ngModel;
@@ -28,7 +28,7 @@ function getQueryBar($scope) {
  */
 export function fromUser(text, model) {
   function getQueryStringQuery(text) {
-    return DecorateQueryProvider({query_string: {query: text}});
+    return decorateQuery({query_string: {query: text}});
   }
 
   parser.yy.possibleFields = [];
@@ -64,13 +64,18 @@ export function fromUser(text, model) {
       return getQueryStringQuery(text);
     }
   } else {
+    let cursorPos;
+    let start;
+    let fieldPart;
+    if (query !== undefined) {
+      cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
+      start = text.substr(0, cursorPos).lastIndexOf(' ') + 1;
+      fieldPart = text.substr(text.substr(0, cursorPos).lastIndexOf(' ') + 1);
+    }
     try {
       let parsed = parser.parse(text).toJson();
       ngModel.$parent.parseError = undefined;
       if (query !== undefined) {
-        const cursorPos = ngModel.$parent.queryBarForm.$$element[0][0].selectionEnd;
-        const start = text.substr(0, cursorPos).lastIndexOf(' ') + 1;
-        const fieldPart = text.substr(text.substr(0, cursorPos).lastIndexOf(' ') + 1)
         query.suggestions = buildSuggestions(fieldPart, start, cursorPos);
         query.parseError = undefined;
         query.parsed = JSON.parse(parsed);
@@ -110,11 +115,11 @@ function buildSuggestions(fieldPart, start, end, errMsg) {
   // }
 
   if (parser.yy.possibleFields[fieldPart]) {
-    suggestions.concat(parser.yy.possibleFields[fieldPart].map(field => {
+    suggestions = parser.yy.possibleFields[fieldPart].map(field => {
       const text = field.name;
       const description = getDescription(field.name);
       return {type, text, description, start, end};
-    }));
+    });
   }
   return suggestions;
 }

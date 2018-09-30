@@ -3,14 +3,16 @@ import 'plugins/nested-fields-support/index_pattern/management/less/main.less';
 import { SavedObjectsClientProvider } from 'ui/saved_objects';
 import chrome from 'ui/chrome';
 import routes from 'ui/routes';
+import { IndexPatternsProvider } from 'ui/index_patterns/index_patterns'
 import 'ui/paginated_table';
 import { uiModules } from 'ui/modules';
 import template from 'plugins/nested-fields-support/index_pattern/management/nested.html';
 
+
 routes.when('/management/kibana/nested_configuration', {
   template,
-  controller($scope, $route, courier, Private) {
-    const savedObjectsClient = Private(SavedObjectsClientProvider);
+  controller($scope, $route, $http, Private) {
+    const indexPatterns = Private(IndexPatternsProvider);
 
     $scope.indexPatternList = $route.current.locals.indexPatterns.map(pattern => {
       const id = pattern.id;
@@ -41,8 +43,8 @@ routes.when('/management/kibana/nested_configuration', {
     }
 
     $scope.activateIndex = function (pattern) {
-      courier.indexPatterns.get(pattern.id).then(index_pattern => {
-        savedObjectsClient._$http.get(chrome.addBasePath('/api/nested-fields-support/mappings/' + index_pattern.title)).then(response => {
+      indexPatterns.get(pattern.id).then(index_pattern => {
+        $http.get(chrome.addBasePath('/api/nested-fields-support/mappings/' + pattern.title)).then(response => {
           let hierarchyPaths = {};
           _.each(response.data, function (index, indexName) {
             if (indexName === '.kibana') return;
@@ -70,7 +72,7 @@ routes.when('/management/kibana/nested_configuration', {
     };
 
     $scope.deactivateIndex = function (pattern) {
-      courier.indexPatterns.get(pattern.id).then(response => {
+      indexPatterns.get(pattern.id).then(response => {
         response.deactivateNested();
         response.save();
       }).then(response => {

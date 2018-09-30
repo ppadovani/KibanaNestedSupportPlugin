@@ -1,11 +1,10 @@
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
-import { VisAggConfigsProvider } from 'ui/vis/agg_configs';
+import { AggConfigs } from 'ui/vis/agg_configs';
 
 let app = uiModules.get('kibana/courier');
 
 app.run(function(config, Private) {
-  const AggConfigs = Private(VisAggConfigsProvider);
 
   function removeParentAggs(obj) {
     for(const prop in obj) {
@@ -38,7 +37,7 @@ app.run(function(config, Private) {
       .map(function (agg) {
         return {
           config: agg,
-          dsl: agg.toDsl()
+          dsl: agg.toDsl(this)
         };
       })
       .value();
@@ -73,7 +72,7 @@ app.run(function(config, Private) {
             prevNestedPath = nestedPath;
           }
         }
-        dsl = config.toDslNested(dslLvlCursor, nestedPath, reverseNested);
+        dsl = config.toDslNested(config._aggs, dslLvlCursor, nestedPath, reverseNested);
 
         let subAggs;
 
