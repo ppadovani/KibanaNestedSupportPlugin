@@ -15,7 +15,7 @@ app.run(function(config, Private) {
     bucket = stripNested(bucket);
     if (!bucket[agg.id] && isSettableToZero) return 0;
 
-    return bucket[agg.id].value;
+    return bucket[agg.id] && bucket[agg.id].value;
   };
 
   function stripNested (parent) {

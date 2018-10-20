@@ -27,47 +27,79 @@ import { decorateQuery, luceneStringToDsl } from 'ui/courier';
 import filtersTemplate from './filters.html';
 import * as Filters from 'ui/agg_types/buckets/filters';
 
-Filters.filtersBucketAgg =  new BucketAggType({
-    name: 'filters',
-    title: 'Filters',
-    createFilter: createFilterFilters,
-    customLabels: false,
-    params: [
-      {
-        name: 'filters',
-        editor: filtersTemplate,
-        default: [ { input: {}, label: '' } ],
-        write: function (aggConfig, output) {
-          const inFilters = aggConfig.params.filters;
-          if (!_.size(inFilters)) return;
+Filters.filtersBucketAgg.params[0].editor = filtersTemplate;
+Filters.filtersBucketAgg.params[0].write = function(aggConfig, output) {
+  const inFilters = aggConfig.params.filters;
+  if (!_.size(inFilters)) return;
 
-          const outFilters = _.transform(inFilters, function (filters, filter) {
-            const input = _.cloneDeep(filter.input);
+  const outFilters = _.transform(inFilters, function (filters, filter) {
+    const input = _.cloneDeep(filter.input);
 
-          if (!input) {
-            console.log('malformed filter agg params, missing "input" query'); // eslint-disable-line no-console
-            return;
-          }
+    if (!input) {
+      console.log('malformed filter agg params, missing "input" query'); // eslint-disable-line no-console
+      return;
+    }
 
-            const query = input.query = luceneStringToDsl(input.query);
-          if (!query) {
-            console.log('malformed filter agg params, missing "query" on input'); // eslint-disable-line no-console
-            return;
-          }
+    const query = input.query = luceneStringToDsl(input.query);
+    if (!query) {
+      console.log('malformed filter agg params, missing "query" on input'); // eslint-disable-line no-console
+      return;
+    }
 
-            decorateQuery(query);
+    decorateQuery(query);
 
-            const matchAllLabel = (filter.input.query === '' && _.has(query, 'match_all')) ? '*' : '';
-            const label = filter.label || matchAllLabel || _.get(query, 'query_string.query') || filter.base_query || angular.toJson(query);
-            filters[label] = input;
-          }, {});
+    const matchAllLabel = (filter.input.query === '' && _.has(query, 'match_all')) ? '*' : '';
+    const label = filter.label || matchAllLabel || _.get(query, 'query_string.query') || filter.base_query || angular.toJson(query);
+    filters[label] = input;
+  }, {});
 
-          if (!_.size(outFilters)) return;
+  if (!_.size(outFilters)) return;
 
-          const params = output.params || (output.params = {});
-          params.filters = outFilters;
-        }
-      }
-    ]
-  });
+  const params = output.params || (output.params = {});
+  params.filters = outFilters;
+};
 
+// Filters.filtersBucketAgg =  new BucketAggType({
+//     name: 'filters',
+//     title: 'Filters',
+//     createFilter: createFilterFilters,
+//     customLabels: false,
+//     params: [
+//       {
+//         name: 'filters',
+//         editor: filtersTemplate,
+//         default: [ { input: {}, label: '' } ],
+//         write: function (aggConfig, output) {
+//           const inFilters = aggConfig.params.filters;
+//           if (!_.size(inFilters)) return;
+//
+//           const outFilters = _.transform(inFilters, function (filters, filter) {
+//             const input = _.cloneDeep(filter.input);
+//
+//           if (!input) {
+//             console.log('malformed filter agg params, missing "input" query'); // eslint-disable-line no-console
+//             return;
+//           }
+//
+//             const query = input.query = luceneStringToDsl(input.query);
+//           if (!query) {
+//             console.log('malformed filter agg params, missing "query" on input'); // eslint-disable-line no-console
+//             return;
+//           }
+//
+//             decorateQuery(query);
+//
+//             const matchAllLabel = (filter.input.query === '' && _.has(query, 'match_all')) ? '*' : '';
+//             const label = filter.label || matchAllLabel || _.get(query, 'query_string.query') || filter.base_query || angular.toJson(query);
+//             filters[label] = input;
+//           }, {});
+//
+//           if (!_.size(outFilters)) return;
+//
+//           const params = output.params || (output.params = {});
+//           params.filters = outFilters;
+//         }
+//       }
+//     ]
+//   });
+//
