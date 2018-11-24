@@ -82,36 +82,7 @@ import * as Terms from 'ui/agg_types/buckets/terms';
     return aggs;
   }
 
-  Terms.termsBucketAgg =  new BucketAggType({
-    name: 'terms',
-    title: 'Terms',
-    makeLabel: function (agg) {
-      const params = agg.params;
-      return agg.getFieldDisplayName() + ': ' + params.order.display;
-    },
-    getFormat: function (bucket) {
-      return {
-        getConverterFor: (type) => {
-          return (val) => {
-            if (val === '__other__') {
-              return bucket.params.otherBucketLabel;
-            }
-            if (val === '__missing__') {
-              return bucket.params.missingBucketLabel;
-            }
-            const parsedUrl = {
-              origin: window.location.origin,
-              pathname: window.location.pathname,
-              basePath: chrome.getBasePath(),
-            };
-            const converter = bucket.params.field.format.getConverterFor(type);
-            return converter(val, undefined, undefined, parsedUrl);
-          };
-        }
-      };
-    },
-    createFilter: createFilterTerms,
-  postFlightRequest: async (resp, aggConfigs, aggConfig, searchSource, inspectorAdapters) => {
+  Terms.termsBucketAgg.postFlightRequest =  async (resp, aggConfigs, aggConfig, searchSource, inspectorAdapters) => {
     const nestedSearchSource = searchSource.createChild();
       if (aggConfig.params.otherBucket) {
         resp.aggregations = stripNested(resp.aggregations);
@@ -137,35 +108,9 @@ import * as Terms from 'ui/agg_types/buckets/terms';
         resp = updateMissingBucket(resp, aggConfigs, aggConfig);
       }
       return resp;
-    },
-    params: [
-      {
-        name: 'field',
-        filterFieldTypes: ['number', 'boolean', 'date', 'ip',  'string']
-      },
-      {
-        name: 'size',
-        default: 5
-      },
-      {
-        name: 'orderAgg',
-        type: AggConfig,
-        default: null,
-        editor: orderAggTemplate,
-        serialize: function (orderAgg) {
-          return orderAgg.toJSON();
-        },
-        deserialize: function (state, agg) {
-          return this.makeOrderAgg(agg, state);
-        },
-        makeOrderAgg: function (termsAgg, state) {
-          state = state || {};
-          state.schema = orderAggSchema;
-          const orderAgg = new AggConfig(termsAgg.vis, state);
-          orderAgg.id = termsAgg.id + '-orderAgg';
-          return orderAgg;
-        },
-        controller: function ($scope) {
+    };
+
+    Terms.termsBucketAgg.params.byName.orderAgg.controller = function ($scope) {
           $scope.safeMakeLabel = function (agg) {
             try {
               return agg.makeLabel();
@@ -226,8 +171,8 @@ import * as Terms from 'ui/agg_types/buckets/terms';
 
             params.orderAgg = params.orderAgg || paramDef.makeOrderAgg(agg);
           }
-        },
-      write: function (agg, output, aggs) {
+        };
+Terms.termsBucketAgg.params.byName.orderAgg.write = function (agg, output, aggs) {
           const dir = agg.params.order.val;
           const order = output.params.order = {};
 
@@ -273,54 +218,4 @@ import * as Terms from 'ui/agg_types/buckets/terms';
 
           output.subAggs = (output.subAggs || []).concat(orderAgg);
           order[orderAggId] = dir;
-        }
-      },
-      {
-        name: 'order',
-        type: 'optioned',
-        default: 'desc',
-        editor: orderAndSizeTemplate,
-        options: [
-          { display: 'Descending', val: 'desc' },
-          { display: 'Ascending', val: 'asc' }
-        ],
-        write: _.noop // prevent default write, it's handled by orderAgg
-      },
-      {
-        name: 'orderBy',
-        write: _.noop // prevent default write, it's handled by orderAgg
-    },
-    {
-      name: 'otherBucket',
-      default: false,
-      editor: otherBucketTemplate,
-      write: _.noop
-    }, {
-      name: 'otherBucketLabel',
-      default: 'Other',
-      write: _.noop
-    }, {
-      name: 'missingBucket',
-      default: false,
-      write: _.noop
-    }, {
-      name: 'missingBucketLabel',
-      default: 'Missing',
-      write: _.noop
-    },
-    {
-      name: 'exclude',
-      type: 'string',
-      advanced: true,
-      disabled: isNotType('string'),
-      ...migrateIncludeExcludeFormat
-    },
-    {
-      name: 'include',
-      type: 'string',
-      advanced: true,
-      disabled: isNotType('string'),
-      ...migrateIncludeExcludeFormat
-      }
-    ]
-  });
+        };
