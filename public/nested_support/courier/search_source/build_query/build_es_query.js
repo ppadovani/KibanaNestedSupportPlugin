@@ -1,14 +1,13 @@
 import { groupBy, has } from 'lodash';
-import { DecorateQueryProvider } from 'ui/courier/data_source/_decorate_query';
-import { buildQueryFromKuery, buildQueryFromKql } from 'ui/courier/data_source/build_query/from_kuery';
-import { buildQueryFromFilters } from 'ui/courier/data_source/build_query/from_filters';
-import { buildQueryFromLucene } from 'ui/courier/data_source/build_query/from_lucene';
+import { decorateQuery } from 'ui/courier/search_source/decorate_query';
+import { buildQueryFromKuery, buildQueryFromKql } from 'ui/courier/search_source/build_query/from_kuery';
+import { buildQueryFromFilters } from 'ui/courier/search_source/build_query/from_filters';
+import { buildQueryFromLucene } from 'ui/courier/search_source/build_query/from_lucene';
 import { buildQueryFromKnql } from './from_knql';
 
-import * as buildQuery from 'ui/courier/data_source/build_query/build_es_query';
+import * as buildQuery from 'ui/courier/search_source/build_query/build_es_query';
 
 buildQuery.BuildESQueryProvider = function(Private, config) {
-  const decorateQuery = Private(DecorateQueryProvider);
 
   /**
    *
@@ -35,4 +34,4 @@ buildQuery.BuildESQueryProvider = function(Private, config) {
   }
 
   return buildESQuery;
-}
+};

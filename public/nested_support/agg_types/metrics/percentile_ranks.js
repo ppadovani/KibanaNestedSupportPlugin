@@ -6,13 +6,12 @@ import { AggTypesMetricsGetResponseAggConfigClassProvider } from 'ui/agg_types/m
 import { getPercentileValue } from './percentiles_get_value';
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
-import { AggTypesMetricsPercentileRanksProvider } from 'ui/agg_types/metrics/percentile_ranks';
+import { percentileRanksMetricAgg } from 'ui/agg_types/metrics/percentile_ranks';
 
 let app = uiModules.get('kibana/courier');
 
 app.run(function(config, Private) {
-  const PercentileRanksAggType = Private(AggTypesMetricsPercentileRanksProvider);
-  PercentileRanksAggType.getValue = function (agg, bucket) {
+  percentileRanksMetricAgg.getValue = function (agg, bucket) {
       return getPercentileValue(agg, bucket) / 100;
   }
 });

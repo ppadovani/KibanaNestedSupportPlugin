@@ -1,12 +1,11 @@
 import _ from 'lodash';
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
-import { AggTypesMetricsMetricAggTypeProvider } from 'ui/agg_types/metrics/metric_agg_type';
+import { MetricAggType } from 'ui/agg_types/metrics/metric_agg_type';
 
 let app = uiModules.get('kibana/courier');
 
 app.run(function(config, Private) {
-  const MetricAggType = Private(AggTypesMetricsMetricAggTypeProvider);
   MetricAggType.prototype.getValue = function (agg, bucket) {
     // Metric types where an empty set equals `zero`
     const isSettableToZero = ['cardinality', 'sum'].indexOf(agg.__type.name) !== -1;
@@ -16,7 +15,7 @@ app.run(function(config, Private) {
     bucket = stripNested(bucket);
     if (!bucket[agg.id] && isSettableToZero) return 0;
 
-    return bucket[agg.id].value;
+    return bucket[agg.id] && bucket[agg.id].value;
   };
 
   function stripNested (parent) {

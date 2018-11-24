@@ -7,15 +7,18 @@ import {IndicesEditSectionsProvider} from './edit_sections';
 import uiRoutes from 'ui/routes';
 import {uiModules} from 'ui/modules';
 import template from './edit_index_pattern.html';
+import { IndexPatternsProvider } from 'ui/index_patterns/index_patterns'
+
 
 uiRoutes
   .when('/management/kibana/discover_results_configuration/:indexPatternId', {
     template,
     resolve: {
-      indexPattern: function ($route, courier) {
-        return courier.indexPatterns
+      indexPattern: function ($route, courier, redirectWhenMissing, Private) {
+        const indexPatterns = Private(IndexPatternsProvider);
+        return indexPatterns
           .get($route.current.params.indexPatternId)
-          .catch(courier.redirectWhenMissing('/management/kibana/index'));
+          .catch(redirectWhenMissing('/management/kibana/index'));
       }
     }
   });

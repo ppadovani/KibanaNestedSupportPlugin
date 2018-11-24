@@ -1,6 +1,4 @@
-import _ from 'lodash';
 import 'plugins/nested-fields-support/index_pattern/management/less/main.less';
-import { SavedObjectsClientProvider } from 'ui/saved_objects';
 
 import routes from 'ui/routes';
 import 'ui/paginated_table';
@@ -9,8 +7,7 @@ import template from 'plugins/nested-fields-support/index_pattern/management/nes
 
 routes.when('/management/kibana/discover_results_configuration', {
   template,
-  controller($scope, $route, $window, courier, Private) {
-    const savedObjectsClient = Private(SavedObjectsClientProvider);
+  controller($scope, $route, Private) {
 
     $scope.indexPatternList = $route.current.locals.indexPatterns.map(pattern => {
       const id = pattern.id;

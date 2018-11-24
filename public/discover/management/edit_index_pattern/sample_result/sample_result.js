@@ -3,7 +3,7 @@ import 'ui/doc_table/doc_table.less';
 import 'ui/styles/table.less';
 import {uiModules} from 'ui/modules';
 import template from './sample_result.html';
-import { SearchSourceProvider } from 'ui/courier/data_source/search_source';
+import { SearchSourceProvider } from 'ui/courier/search_source';
 
 const MIN_LINE_LENGTH = 20;
 
@@ -30,7 +30,7 @@ uiModules.get('apps/management', ['kibana/courier'])
         $scope.$parent.$watchMulti(['refreshSample'], reformatSample);
 
         async function performQuery(searchSource) {
-          const response = await searchSource.fetchAsRejectablePromise();
+          const response = await searchSource;
 
           return _.get(response, ['hits', 'hits'], []);
         }
@@ -73,8 +73,8 @@ uiModules.get('apps/management', ['kibana/courier'])
         function refreshSample() {
           if ($scope.$parent.refreshSample === undefined || $scope.$parent.refreshSample) {
 
-            performQuery(new SearchSource().set('index', $scope.indexPattern).set('size', 1)
-              .query()).then(response => {
+            performQuery(new SearchSource().setField('index', $scope.indexPattern).setField('size', 1)
+              .fetch()).then(response => {
                 $scope.sampleHit = response[0];
               reformatSample();
             });

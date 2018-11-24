@@ -23,7 +23,7 @@ app.run(function(config, Private) {
    * @return {void|Object} - if the config has a dsl representation, it is
    *                         returned, else undefined is returned
    */
-  AggConfig.prototype.toDsl = function (prevNestedPath) {
+  AggConfig.prototype.toDsl = function (aggConfigs, prevNestedPath) {
     if (this.type.hasNoDsl) return;
 
     if (this.params.orderAgg) {
@@ -48,7 +48,7 @@ app.run(function(config, Private) {
       this.params.orderAgg.reverseNested = reverseNested;
     }
 
-    const output = this.write();
+    const output = this.write(aggConfigs);
 
     const configDsl = {};
     configDsl[this.type.dslName || this.type.name] = output.params;
@@ -76,14 +76,14 @@ app.run(function(config, Private) {
           }
         }
 
-        subAggConfig.toDslNested(subDslLvl, nestedPath, reverseNested);
+        subAggConfig.toDslNested(aggConfigs, subDslLvl, nestedPath, reverseNested);
       });
     }
 
     if (output.parentAggs) {
       const subDslLvl = configDsl.parentAggs || (configDsl.parentAggs = {});
       output.parentAggs.forEach(function nestAdhocSubAggs(subAggConfig) {
-        subDslLvl[subAggConfig.id] = subAggConfig.toDsl();
+        subDslLvl[subAggConfig.id] = subAggConfig.toDsl(aggConfigs);
       });
     }
 
@@ -103,9 +103,9 @@ app.run(function(config, Private) {
    * @returns {void|Object} The original result of `this.toDsl()`, regardless
    * of whether this aggregation is nested.
    */
-  AggConfig.prototype.toDslNested = function (destination, nestedPath, reverseNested) {
+  AggConfig.prototype.toDslNested = function (aggConfigs, destination, nestedPath, reverseNested) {
     let id = this.id;
-    let dsl = this.toDsl(nestedPath);
+    let dsl = this.toDsl(aggConfigs, nestedPath);
     let result = dsl; // save the original dsl to return later
 
     if (this.params.countByParent) {

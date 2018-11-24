@@ -5,13 +5,12 @@ import { AggTypesMetricsMetricAggTypeProvider } from 'ui/agg_types/metrics/metri
 import { AggTypesMetricsGetResponseAggConfigClassProvider } from 'ui/agg_types/metrics/get_response_agg_config_class';
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
-import { AggTypesMetricsTopHitProvider } from 'ui/agg_types/metrics/top_hit';
+import { topHitMetricAgg } from 'ui/agg_types/metrics/top_hit';
 
 let app = uiModules.get('kibana/courier');
 
 app.run(function(config, Private) {
-  const TopHitType = Private(AggTypesMetricsTopHitProvider);
-  TopHitType.getValue = function (agg, bucket) {
+  topHitMetricAgg.getValue = function (agg, bucket) {
 	  let valueBucket = bucket;
 	  if (bucket['nested_' + agg.parentId]) {
 		  valueBucket = bucket['nested_' + agg.parentId];
