@@ -81,3 +81,24 @@ field.Field = function (indexPattern, spec) {
     return obj.create();
   };
 
+Object.defineProperties(field.Field.prototype, {
+    indexed: {
+        get() {
+            throw new Error('field.indexed has been removed, see https://github.com/elastic/kibana/pull/11969');
+        }
+    },
+    analyzed: {
+        get() {
+            throw new Error('field.analyzed has been removed, see https://github.com/elastic/kibana/pull/11969');
+        }
+    },
+    doc_values: {
+        get() {
+            throw new Error('field.doc_values has been removed, see https://github.com/elastic/kibana/pull/11969');
+        }
+    },
+});
+
+field.Field.prototype.routes = {
+  edit: '/management/kibana/indices/{{indexPattern.id}}/field/{{name}}'
+};
