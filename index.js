@@ -2,7 +2,8 @@ import {resolve} from 'path';
 import Promise from 'bluebird';
 
 function updateIndexSchema(callWithInternalUser, server) {
-  return callWithInternalUser('indices.putMapping', {
+    server.log(['status', 'info'], 'updating kibana index');
+  return  callWithInternalUser('indices.putMapping', {
     index: server.config().get('kibana.index'),
     type: "doc",
     body: {
@@ -17,6 +18,8 @@ function updateIndexSchema(callWithInternalUser, server) {
       }
     }
   }).catch(function (err) {
+    console.log(err);
+    server.log(['status', 'info'], err);
     return Promise.delay(10).then(updateIndexSchema.bind(null, callWithInternalUser, server));
   });
 }
@@ -29,6 +32,8 @@ export default function (kibana) {
     uiExports: {
 
       docViews: ['plugins/nested-fields-support/nested_support/doc_view/structure'],
+
+//      mappings: require('./mappings.json'),
 
       managementSections: [
         'plugins/nested-fields-support/index_pattern/management',
@@ -52,9 +57,16 @@ export default function (kibana) {
 
     // Update the .kibana index-pattern type to include a new nested flag
     init(server, options) {
-      const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+      // const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('admin');
+      //
+      //   server.log(['status', 'info'], "nested support initializing");
+      //
+      //   const result = updateIndexSchema(callWithInternalUser, server);
+      //   server.log(['status', 'info'], 'finished kibana index');
+        server.kibanaMigrator.mappingProperties['index-pattern']['properties']['nested'] = { type: 'boolean'};
+        // server.log(['status', 'info'], server.kibanaMigrator.mappingProperties['index-pattern']);
 
-      updateIndexSchema(callWithInternalUser, server);
+
 
       server.route({
         path: '/api/nested-fields-support/mappings/{name}',
