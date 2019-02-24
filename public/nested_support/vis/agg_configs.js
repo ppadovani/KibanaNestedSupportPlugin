@@ -1,6 +1,7 @@
 import 'ui/courier';
 import { uiModules } from 'ui/modules';
 import { AggConfigs } from 'ui/vis/agg_configs';
+import { AggConfig } from 'ui/vis/agg_config';
 
 let app = uiModules.get('kibana/courier');
 
